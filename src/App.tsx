@@ -1,26 +1,22 @@
-import { useEffect, useRef } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Suspense, useEffect, useRef } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Footer from './components/Footer';
 import Header from './components/Header';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import DisciplineDetail from './pages/DisciplineDetail';
-import Disciplines from './pages/Disciplines';
-import Home from './pages/Home';
-import NotFound from './pages/NotFound';
-import Partners from './pages/Partners';
-import ProjectDetail from './pages/ProjectDetail';
-import Projects from './pages/Projects';
-import Sector from './pages/Sector';
+import { isInPlace } from './lib/nav';
+import type { Pages } from './pages/registry';
 import { legacyRedirects } from './routes';
 
+const isDisciplinePage = (path: string) => /^\/disciplines\/[^/]+$/.test(path);
+
 /** Scrolls to the top (or hash target) on navigation and moves focus to the new page's heading
- *  so screen-reader users hear that the page changed. The initial load is left alone. */
-const NavigationManager = () => {
+ *  so screen-reader users hear that the page changed. The initial load is left alone, and so are
+ *  in-place content swaps. */
+const NavigationManager = ({ swap }: { swap: boolean }) => {
   const { pathname, hash } = useLocation();
   const firstRender = useRef(true);
   useEffect(() => {
+    if (swap) return;
     if (hash) {
       document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView();
       return;
@@ -36,12 +32,29 @@ const NavigationManager = () => {
       heading.style.outline = 'none';
       heading.focus({ preventScroll: true });
     }
-  }, [pathname, hash]);
+  }, [pathname, hash, swap]);
   return null;
 };
 
-const App = () => {
-  const { pathname } = useLocation();
+const App = ({ pages }: { pages: Pages }) => {
+  const { pathname, state } = useLocation();
+  const navigationType = useNavigationType();
+  // Route transitions play only on client-side navigation, never on the prerendered first paint,
+  // and not for in-place content swaps (the page wrapper keeps its key, so nothing remounts).
+  // A swap is a link marked IN_PLACE, or Back/Forward between two discipline pages.
+  const lastPath = useRef(pathname);
+  const pageKey = useRef(pathname);
+  const navigated = useRef(false);
+  const swap = useRef(false);
+  if (lastPath.current !== pathname) {
+    swap.current =
+      isInPlace(state) || (navigationType === 'POP' && isDisciplinePage(lastPath.current) && isDisciplinePage(pathname));
+    lastPath.current = pathname;
+    if (!swap.current) {
+      navigated.current = true;
+      pageKey.current = pathname;
+    }
+  }
   return (
     <>
       <a
@@ -50,26 +63,33 @@ const App = () => {
       >
         Skip to content
       </a>
-      <NavigationManager />
+      <NavigationManager swap={swap.current} />
       <Header />
-      <main id="main" className="pt-20">
-        <ErrorBoundary key={pathname}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/disciplines" element={<Disciplines />} />
-            <Route path="/disciplines/:slug" element={<DisciplineDetail />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/projects/:slug" element={<ProjectDetail />} />
-            <Route path="/sectors/:slug" element={<Sector />} />
-            <Route path="/partners" element={<Partners />} />
-            <Route path="/contact" element={<Contact />} />
-            {Object.entries(legacyRedirects).map(([from, to]) => (
-              <Route key={from} path={from} element={<Navigate to={to} replace />} />
-            ))}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </ErrorBoundary>
+      {navigated.current && <div key={`wipe-${pageKey.current}`} className="route-wipe" aria-hidden="true" />}
+      <main id="main">
+        <div key={pageKey.current} className={navigated.current ? 'page-enter' : undefined}>
+          <ErrorBoundary>
+            {/* Pages load on demand in the browser. While a page's chunk is still downloading during
+                hydration, React keeps the prerendered HTML on screen, so nothing flashes. */}
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/" element={<pages.Home />} />
+                <Route path="/about" element={<pages.About />} />
+                <Route path="/disciplines" element={<pages.Disciplines />} />
+                <Route path="/disciplines/:slug" element={<pages.DisciplineDetail />} />
+                <Route path="/projects" element={<pages.Projects />} />
+                <Route path="/projects/:slug" element={<pages.ProjectDetail />} />
+                <Route path="/sectors/:slug" element={<pages.Sector />} />
+                <Route path="/partners" element={<pages.Partners />} />
+                <Route path="/contact" element={<pages.Contact />} />
+                {Object.entries(legacyRedirects).map(([from, to]) => (
+                  <Route key={from} path={from} element={<Navigate to={to} replace />} />
+                ))}
+                <Route path="*" element={<pages.NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       </main>
       <Footer />
     </>

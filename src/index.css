@@ -5,11 +5,13 @@
 @layer base {
   :root {
     color-scheme: dark;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   }
 
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-padding-top: 6rem;
+    scroll-padding-top: 0;
   }
 
   body {
@@ -59,11 +61,11 @@
   }
 
   .heading-section {
-    @apply font-display text-3xl font-light tracking-tight text-ink md:text-4xl;
+    @apply font-display text-3xl font-light leading-[1.15] tracking-tight text-ink md:text-4xl md:leading-[1.12];
   }
 
   .prose-body {
-    @apply text-[15px] font-light leading-relaxed text-ink-secondary md:text-base;
+    @apply text-[15px] font-light leading-[1.8] text-ink-secondary md:text-base md:leading-[1.8];
   }
 
   .btn {
@@ -99,30 +101,3 @@
   }
 }
 
-/* Scroll reveal is progressive: content is only hidden once JS has marked the document. */
-.js .reveal {
-  opacity: 0;
-  transform: translateY(14px);
-  transition:
-    opacity 0.7s ease,
-    transform 0.7s ease;
-}
-
-.js .reveal.visible {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .js .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-  }
-}

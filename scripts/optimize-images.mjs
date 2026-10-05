@@ -2,9 +2,9 @@
 //
 //   npm run images
 //
-// Outputs responsive WebP files to /public/images, 1200x630 Open Graph JPEGs to
-// /public/images/og, and a manifest (src/data/images.json) that the <Img> component
-// reads for srcset, intrinsic width/height and Open Graph lookups.
+// Outputs responsive AVIF and WebP files to /public/images (the <Img> component serves AVIF
+// with WebP as the fallback), 1200x630 Open Graph JPEGs to /public/images/og, and a manifest
+// (src/data/images.json) that <Img> reads for srcset, intrinsic width/height and OG lookups.
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
@@ -14,11 +14,13 @@ const SRC = path.join(ROOT, 'assets-src');
 const OUT = path.join(ROOT, 'public', 'images');
 const MANIFEST = path.join(ROOT, 'src', 'data', 'images.json');
 
+// `quality` is for WebP; `avif` is the AVIF quality that matches it visually (AVIF needs a
+// lower number for the same look). 320px project variants serve small thumbnails and layers.
 const groups = {
-  projects: { widths: [480, 720, 960, 1600], quality: 72, og: true },
-  disciplines: { widths: [640, 1280, 1920], quality: 70, og: true },
-  team: { widths: [240, 480], quality: 80, trim: true, square: true },
-  partners: { widths: [320, 640], quality: 90, trim: true }
+  projects: { widths: [320, 480, 720, 960, 1600], quality: 72, avif: 50, og: true },
+  disciplines: { widths: [640, 1280, 1920], quality: 70, avif: 48, og: true },
+  team: { widths: [240, 480], quality: 80, avif: 60, trim: true, square: true },
+  partners: { widths: [320, 640], quality: 90, avif: 70, trim: true }
 };
 
 const slugify = (name) =>
@@ -56,11 +58,9 @@ for (const [group, opts] of Object.entries(groups)) {
     const widths = [...new Set(opts.widths.map((w) => Math.min(w, width)))];
 
     for (const w of widths) {
-      await base
-        .clone()
-        .resize({ width: w, withoutEnlargement: true })
-        .webp({ quality: opts.quality })
-        .toFile(path.join(OUT, group, `${slug}-${w}.webp`));
+      const resized = base.clone().resize({ width: w, withoutEnlargement: true });
+      await resized.clone().webp({ quality: opts.quality }).toFile(path.join(OUT, group, `${slug}-${w}.webp`));
+      await resized.clone().avif({ quality: opts.avif, effort: 6 }).toFile(path.join(OUT, group, `${slug}-${w}.avif`));
     }
 
     if (opts.og) {
@@ -72,18 +72,18 @@ for (const [group, opts] of Object.entries(groups)) {
         .toFile(path.join(OUT, 'og', `${slug}.jpg`));
     }
 
-    manifest[`${group}/${slug}`] = { width, height, widths, ...(opts.og ? { og: true } : {}) };
+    manifest[`${group}/${slug}`] = { width, height, widths, avif: true, ...(opts.og ? { og: true } : {}) };
     console.log(`${group}/${slug}`, widths.join(','));
   }
 }
 
-// Brand assets: compact "iHD.ph" mark for the header, full lockup for schema/OG, favicons.
+// Brand assets: compact "iHD.ph" mark for the header, full lockup for schema/OG.
+// Favicons and app icons are drawn from the vector glyph instead (scripts/make-icons.mjs).
 const logo = await sharp(path.join(SRC, 'brand', 'logo.png')).trim().png().toBuffer();
 const { width: lw, height: lh } = await sharp(logo).metadata();
 // The lockup is "iHD.ph | IHD Philippines Ltd. Inc. / Technology Consultancy"; the vertical
-// divider sits at ~39.4% of the trimmed width and the "iHD" letterforms end at ~25.6% (the dot touches the D).
+// divider sits at ~39.4% of the trimmed width.
 const mark = await sharp(logo).extract({ left: 0, top: 0, width: Math.round(lw * 0.393), height: lh }).trim().png().toBuffer();
-const glyph = await sharp(logo).extract({ left: 0, top: 0, width: Math.round(lw * 0.2558), height: lh }).trim().png().toBuffer();
 fs.mkdirSync(path.join(OUT, 'brand'), { recursive: true });
 
 await sharp(mark).resize({ height: 64 }).webp({ quality: 90 }).toFile(path.join(OUT, 'brand', 'ihd-mark.webp'));
@@ -91,15 +91,6 @@ await sharp(mark).resize({ height: 64 }).png().toFile(path.join(OUT, 'brand', 'i
 await sharp(logo).resize({ width: 1200 }).png({ compressionLevel: 9 }).toFile(path.join(OUT, 'brand', 'ihd-logo.png'));
 const { width: mw, height: mh } = await sharp(await sharp(mark).resize({ height: 64 }).toBuffer()).metadata();
 manifest['brand/ihd-mark'] = { width: mw, height: mh, widths: [] };
-
-const square = (size, pad) =>
-  sharp(glyph)
-    .resize(size - pad * 2, size - pad * 2, { fit: 'contain', background: '#0c0e12' })
-    .extend({ top: pad, bottom: pad, left: pad, right: pad, background: { r: 12, g: 14, b: 18, alpha: 1 } })
-    .flatten({ background: '#0c0e12' });
-await square(32, 3).png().toFile(path.join(ROOT, 'public', 'favicon-32.png'));
-await square(180, 24).png().toFile(path.join(ROOT, 'public', 'apple-touch-icon.png'));
-await square(512, 64).png().toFile(path.join(ROOT, 'public', 'icon-512.png'));
 
 // Default social card: the lockup centred on the canvas colour.
 const lockup = await sharp(logo).resize({ width: 860 }).png().toBuffer();

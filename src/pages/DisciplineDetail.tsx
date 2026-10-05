@@ -1,18 +1,19 @@
 import { Link, NavLink, useParams } from 'react-router-dom';
 import { ArrowRight } from '../components/Icons';
-import { Img, ogImageFor } from '../components/Img';
+import { ogImageFor } from '../components/Img';
 import InquiryForm from '../components/InquiryForm';
-import Reveal from '../components/Reveal';
-import { Breadcrumbs, ProjectCard, SectionHeader } from '../components/ui';
+import { RevealText } from '../components/Motion';
+import Scene from '../components/Scene';
+import { PageHero, ProjectCard, SectionHeader, delay } from '../components/ui';
 import { disciplines, getDiscipline } from '../data/disciplines';
 import { disciplineFaqs } from '../data/faqs';
 import { projects, projectsByDiscipline } from '../data/projects';
 import { breadcrumbs, faqPage, graph, service, webPage } from '../lib/schema';
+import { IN_PLACE } from '../lib/nav';
 import { Seo } from '../lib/seo';
 import NotFound from './NotFound';
 
-const DisciplineDetail = () => {
-  const { slug } = useParams();
+const DisciplinePage = ({ slug }: { slug?: string }) => {
   const d = getDiscipline(slug);
   if (!d) return <NotFound />;
 
@@ -41,51 +42,54 @@ const DisciplineDetail = () => {
         )}
       />
 
-      {/* Masthead with image */}
-      <section className="border-b border-white/10 pb-16 pt-14 md:pb-20 md:pt-20">
-        <div className="container-site">
-          <Breadcrumbs trail={trail} />
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-6">
-              <p className="eyebrow mb-5 flex items-center gap-2.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden="true" />
-                Discipline {d.index} · {d.name}
-              </p>
-              <h1 className="font-display text-4xl font-light leading-[1.1] tracking-tight text-ink md:text-5xl">{d.h1}</h1>
-              <p className="mt-6 text-base font-light leading-relaxed text-ink-secondary md:text-lg">{d.positioning}</p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a href="#enquire" className="btn-primary">
-                  Discuss your project <ArrowRight />
-                </a>
-                {related.length > 0 && (
-                  <a href="#projects" className="btn-ghost">
-                    {related.length} related projects
-                  </a>
-                )}
-              </div>
-            </div>
-            <div className="lg:col-span-6">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-sm border border-white/10 bg-surface-raised">
-                <Img src={d.image} alt={d.imageAlt} priority sizes="(min-width: 1024px) 50vw, 100vw" className="h-full w-full object-cover grayscale-[30%]" />
-              </div>
+      <PageHero
+        eyebrow={`Discipline ${d.index} · ${d.name}`}
+        trail={trail}
+        title={d.h1}
+        lead={d.positioning}
+        image={{ src: d.image, alt: d.imageAlt }}
+      >
+        <div className="mt-10 flex flex-wrap gap-3">
+          <a href="#enquire" className="btn-primary">
+            Discuss your project <ArrowRight />
+          </a>
+          {related.length > 0 && (
+            <a href="#projects" className="btn-ghost bg-black/20 backdrop-blur-sm">
+              {related.length} related projects
+            </a>
+          )}
+        </div>
+      </PageHero>
+
+      {/* Overview */}
+      <Scene tone="alt" aria-labelledby="overview-heading">
+        <div className="container-site grid gap-14 scene-pad lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-8">
+            <p className="eyebrow mb-5" data-rv>
+              Overview
+            </p>
+            <h2 id="overview-heading" className="display-xl">
+              <RevealText text={`Our ${d.name} practice`} delay={80} />
+            </h2>
+            <div className="mt-10 max-w-3xl space-y-6">
+              {d.overview.map((para, i) => (
+                <p key={para.slice(0, 24)} className="prose-body" data-rv style={delay(300 + i * 100)}>
+                  {para}
+                </p>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      <div className="container-site grid gap-12 py-20 md:py-24 lg:grid-cols-12">
-        {/* Sidebar */}
-        <aside className="hidden lg:col-span-3 lg:block">
-          <nav aria-label="Disciplines" className="sticky top-28">
-            <p className="label mb-4">Disciplines</p>
+          <nav aria-label="Disciplines" className="lg:col-span-3 lg:col-start-10 lg:pt-16" data-rv style={delay(400)}>
+            <p className="label mb-5">All disciplines</p>
             <ul className="space-y-1 border-l border-white/10">
               {disciplines.map((x) => (
                 <li key={x.slug}>
                   <NavLink
+                    state={IN_PLACE}
                     to={`/disciplines/${x.slug}`}
                     className={({ isActive }) =>
-                      `-ml-px block border-l py-2 pl-4 text-sm transition-colors ${
-                        isActive ? 'border-signal text-ink' : 'border-transparent text-ink-secondary hover:text-ink'
+                      `-ml-px block border-l py-2 pl-4 text-sm transition-colors duration-300 ${
+                        isActive ? 'border-signal text-ink' : 'border-transparent text-ink-secondary hover:border-white/30 hover:text-ink'
                       }`
                     }
                   >
@@ -95,103 +99,96 @@ const DisciplineDetail = () => {
               ))}
             </ul>
           </nav>
-        </aside>
-
-        <div className="space-y-20 lg:col-span-9">
-          {/* Overview */}
-          <section aria-labelledby="overview-heading">
-            <p className="eyebrow mb-3">Overview</p>
-            <h2 id="overview-heading" className="heading-section">
-              Our {d.name} practice
-            </h2>
-            <div className="mt-6 max-w-3xl space-y-5">
-              {d.overview.map((para) => (
-                <p key={para.slice(0, 24)} className="prose-body">
-                  {para}
-                </p>
-              ))}
-            </div>
-          </section>
-
-          {/* Capabilities */}
-          <section aria-labelledby="capabilities-heading">
-            <p className="eyebrow mb-3">Technical Capabilities</p>
-            <h2 id="capabilities-heading" className="heading-section">
-              Core specialisations
-            </h2>
-            <dl className="mt-8 grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 sm:grid-cols-2">
-              {d.capabilities.map((c, i) => (
-                <div key={c.title} className="bg-canvas p-6 sm:[&:last-child:nth-child(odd)]:col-span-2">
-                  <dt className="flex items-baseline gap-3 text-base font-medium text-ink">
-                    <span className="font-mono text-[11px] text-ink-muted">{String(i + 1).padStart(2, '0')}</span>
-                    {c.title}
-                  </dt>
-                  <dd className="mt-2 pl-8 text-sm font-light leading-relaxed text-ink-secondary">{c.detail}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-
-          {/* Applications */}
-          <section aria-labelledby="applications-heading">
-            <p className="eyebrow mb-3">Applications</p>
-            <h2 id="applications-heading" className="heading-section">
-              Where this discipline is applied
-            </h2>
-            <ul className="mt-8 grid grid-cols-1 gap-x-10 gap-y-6 md:grid-cols-2">
-              {d.applications.map((a) => (
-                <li key={a.title} className="border-t border-white/10 pt-5">
-                  <h3 className="text-base font-medium text-ink">{a.title}</h3>
-                  <p className="mt-2 text-sm font-light leading-relaxed text-ink-secondary">{a.detail}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {/* Methodology */}
-          <section aria-labelledby="method-heading">
-            <p className="eyebrow mb-3">Engineering Methodology</p>
-            <h2 id="method-heading" className="heading-section">
-              How we deliver
-            </h2>
-            <ol className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-              {d.methodology.map((m, i) => (
-                <li key={m.title} className="border-l border-white/15 pl-5">
-                  <p className="font-mono text-xs text-signal">0{i + 1}</p>
-                  <h3 className="mt-2 text-base font-medium text-ink">{m.title}</h3>
-                  <p className="mt-2 text-[13px] font-light leading-relaxed text-ink-secondary">{m.detail}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-
-          {/* FAQ */}
-          <section aria-labelledby="faq-heading">
-            <p className="eyebrow mb-3">Questions</p>
-            <h2 id="faq-heading" className="heading-section">
-              Frequently asked questions
-            </h2>
-            <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
-              {faqs.map((f) => (
-                <details key={f.q} className="group py-5">
-                  <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-base font-medium text-ink [&::-webkit-details-marker]:hidden">
-                    <h3 className="font-sans text-base font-medium">{f.q}</h3>
-                    <span className="mt-1 shrink-0 font-mono text-ink-muted transition-transform group-open:rotate-45" aria-hidden="true">
-                      +
-                    </span>
-                  </summary>
-                  <p className="mt-3 max-w-3xl text-sm font-light leading-relaxed text-ink-secondary">{f.a}</p>
-                </details>
-              ))}
-            </div>
-          </section>
         </div>
-      </div>
+      </Scene>
+
+      {/* Capabilities */}
+      <Scene aria-labelledby="capabilities-heading">
+        <div className="container-site scene-pad">
+          <SectionHeader id="capabilities-heading" eyebrow="Technical Capabilities" title="Core specialisations" />
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+            {d.capabilities.map((c, i) => (
+              <div key={c.title} className="group bg-canvas p-6 transition-colors duration-500 hover:bg-surface md:p-7" data-rv style={delay(150 + i * 60)}>
+                <dt className="font-display text-lg font-light text-ink">
+                  <span className="mb-3 block font-mono text-[11px] text-ink-muted transition-colors group-hover:text-signal">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  {c.title}
+                </dt>
+                <dd className="mt-2 text-sm font-light leading-[1.75] text-ink-secondary">{c.detail}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </Scene>
+
+      {/* Applications */}
+      <Scene tone="alt" aria-labelledby="applications-heading">
+        <div className="container-site scene-pad">
+          <SectionHeader id="applications-heading" eyebrow="Applications" title="Where this discipline is applied" />
+          <ul className="grid grid-cols-1 gap-x-12 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
+            {d.applications.map((a, i) => (
+              <li key={a.title} className="border-t border-white/15 pt-6" data-rv style={delay(150 + i * 70)}>
+                <h3 className="font-display text-lg font-light text-ink">{a.title}</h3>
+                <p className="mt-2 text-sm font-light leading-[1.75] text-ink-secondary">{a.detail}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Scene>
+
+      {/* Methodology */}
+      <Scene aria-labelledby="method-heading">
+        <div className="container-site scene-pad">
+          <SectionHeader id="method-heading" eyebrow="Engineering Methodology" title="How we deliver" />
+          <ol className="relative grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            <span className="absolute left-0 right-0 top-[5px] hidden h-px bg-white/15 lg:block" data-rv="line" style={delay(250)} aria-hidden="true" />
+            {d.methodology.map((m, i) => (
+              <li key={m.title} className="relative" data-rv style={delay(380 + i * 120)}>
+                <span className="relative z-10 block h-[11px] w-[11px] rotate-45 border border-signal bg-canvas" aria-hidden="true" />
+                <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.18em] text-signal">0{i + 1}</p>
+                <h3 className="mt-3 font-display text-2xl font-light text-ink">{m.title}</h3>
+                <p className="mt-3 text-[13.5px] font-light leading-[1.75] text-ink-secondary">{m.detail}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Scene>
+
+      {/* FAQ */}
+      <Scene tone="alt" aria-labelledby="faq-heading">
+        <div className="container-site grid gap-12 scene-pad lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-5" data-rv>
+              Questions
+            </p>
+            <h2 id="faq-heading" className="display-xl">
+              <RevealText text="Frequently asked questions" delay={80} />
+            </h2>
+          </div>
+          <div className="divide-y divide-white/10 border-y border-white/10 lg:col-span-8">
+            {faqs.map((f, i) => (
+              <details key={f.q} className="group py-6" data-rv style={delay(200 + i * 80)}>
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-6 [&::-webkit-details-marker]:hidden">
+                  <h3 className="font-display text-lg font-light text-ink transition-colors group-hover:text-signal md:text-xl">{f.q}</h3>
+                  <span
+                    className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/15 font-mono text-ink-secondary transition-transform duration-500 group-open:rotate-45"
+                    aria-hidden="true"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="mt-4 max-w-3xl text-[15px] font-light leading-[1.8] text-ink-secondary">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </Scene>
 
       {/* Related projects */}
       {related.length > 0 && (
-        <section id="projects" className="border-t border-white/10 bg-canvas-alt py-20 md:py-24" aria-labelledby="related-heading">
-          <div className="container-site">
+        <Scene id="projects" aria-labelledby="related-heading">
+          <div className="container-site scene-pad">
             <SectionHeader
               id="related-heading"
               eyebrow="Relevant Projects"
@@ -203,66 +200,82 @@ const DisciplineDetail = () => {
                 </Link>
               }
             />
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {related.slice(0, 6).map((p, i) => (
-                <Reveal key={p.slug} delay={(i % 3) * 60} className="h-full">
-                  <ProjectCard project={p} />
-                </Reveal>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {related.slice(0, 3).map((p, i) => (
+                <div key={p.slug} className="h-full" data-rv style={delay(200 + i * 100)}>
+                  <ProjectCard project={p} aspect="aspect-[16/9]" />
+                </div>
               ))}
             </div>
           </div>
-        </section>
+        </Scene>
       )}
 
       {/* Related disciplines */}
-      <section className="border-t border-white/10 py-20" aria-labelledby="related-disciplines-heading">
-        <div className="container-site">
-          <p className="eyebrow mb-3">Related Disciplines</p>
-          <h2 id="related-disciplines-heading" className="heading-section mb-10">
-            Often designed alongside {d.name}
-          </h2>
-          <div className={`grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 ${d.related.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
-            {d.related.map((slug) => {
-              const r = getDiscipline(slug)!;
+      <Scene tone="alt" aria-labelledby="related-disciplines-heading">
+        <div className="container-site scene-pad">
+          <SectionHeader id="related-disciplines-heading" eyebrow="Related Disciplines" title={`Often designed alongside ${d.name}`} />
+          <div
+            className={`grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 ${
+              d.related.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'
+            }`}
+          >
+            {d.related.map((s, i) => {
+              const r = getDiscipline(s)!;
               return (
-                <Link key={slug} to={`/disciplines/${slug}`} className="group flex flex-col justify-between gap-6 bg-canvas p-7 transition-colors hover:bg-surface-raised">
+                <Link
+                  key={s}
+                  to={`/disciplines/${s}`}
+                  className="group flex flex-col justify-between gap-10 bg-canvas-alt p-8 transition-colors duration-500 hover:bg-surface-raised md:p-10"
+                  data-rv
+                  style={delay(200 + i * 100)}
+                >
                   <div>
                     <p className="font-mono text-[11px] uppercase tracking-widest text-ink-muted">
                       {r.index} / {r.label}
                     </p>
-                    <h3 className="mt-3 text-lg font-medium text-ink">{r.name}</h3>
-                    <p className="mt-2 text-sm font-light leading-relaxed text-ink-secondary">{r.summary}</p>
+                    <h3 className="mt-4 font-display text-2xl font-light text-ink">{r.name}</h3>
+                    <p className="mt-3 text-sm font-light leading-[1.75] text-ink-secondary">{r.summary}</p>
                   </div>
                   <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-signal">
-                    {r.anchor} <ArrowRight className="h-3 w-3" />
+                    {r.anchor} <ArrowRight className="h-3 w-3 transition-transform duration-500 group-hover:translate-x-1" />
                   </span>
                 </Link>
               );
             })}
           </div>
         </div>
-      </section>
+      </Scene>
 
       {/* Enquiry */}
-      <section id="enquire" className="border-t border-white/10 bg-canvas-alt py-20 md:py-24" aria-labelledby="enquire-heading">
-        <div className="container-site grid gap-12 lg:grid-cols-12">
-          <div className="space-y-5 lg:col-span-5">
-            <p className="eyebrow">Engagement Desk</p>
-            <h2 id="enquire-heading" className="heading-section">
-              Discuss {d.name} for your project
+      <Scene id="enquire" tone="deep" aria-labelledby="enquire-heading">
+        <div className="container-site grid gap-14 scene-pad lg:grid-cols-12 lg:gap-16">
+          <div className="space-y-7 lg:col-span-5">
+            <p className="eyebrow" data-rv>
+              Engagement Desk
+            </p>
+            <h2 id="enquire-heading" className="display-xl">
+              <RevealText text={`Discuss ${d.name} for your project`} delay={80} />
             </h2>
-            <p className="prose-body">
-              Share the facility type, location and project stage. The relevant discipline lead will review your brief
-              and respond within one business day.
+            <p className="prose-body" data-rv style={delay(300)}>
+              Share the facility type, location and project stage. The relevant discipline lead will review your brief and
+              respond within one business day.
             </p>
           </div>
-          <div className="rounded-sm border border-white/10 bg-surface p-5 sm:p-8 lg:col-span-7">
+          <div className="rounded-lg border border-white/10 bg-surface p-5 sm:p-8 lg:col-span-7" data-rv style={delay(250)}>
             <InquiryForm defaultDiscipline={d.name} />
           </div>
         </div>
-      </section>
+      </Scene>
     </>
   );
+};
+
+/** Keyed by discipline: switching from the side menu swaps the content where the visitor is
+ *  (an in-place navigation), and the remount replays each scene's reveal as the transition. */
+const DisciplineDetail = () => {
+  const { slug } = useParams();
+  return <DisciplinePage key={slug} slug={slug} />;
 };
 
 export default DisciplineDetail;

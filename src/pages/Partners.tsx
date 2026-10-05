@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from '../components/Icons';
 import { Img, ogImageFor } from '../components/Img';
-import Reveal from '../components/Reveal';
-import { CtaBand, PageHero, SectionHeader } from '../components/ui';
-import { projects } from '../data/projects';
+import Marquee from '../components/Marquee';
+import { RevealText } from '../components/Motion';
+import Scene from '../components/Scene';
+import { CtaBand, PageHero, SectionHeader, delay } from '../components/ui';
+import { getProject, projects } from '../data/projects';
 import { developers } from '../data/team';
 import { breadcrumbs, graph, webPage } from '../lib/schema';
 import { Seo } from '../lib/seo';
@@ -14,6 +16,7 @@ const DESCRIPTION =
 const PATH = '/partners';
 
 const hospitality = projects.filter((p) => p.sector === 'hospitality');
+const heroProject = getProject('sheraton-cebu-mactan')!;
 
 const sectorsServed = [
   'Commercial & corporate facilities',
@@ -72,82 +75,108 @@ const Partners = () => (
       ]}
       title="Developer partners and the project ecosystem we work within"
       lead="Over the years we have collaborated with forward-thinking organisations across industries. These partnerships allow us to deliver integrated technology and expert consultancy that lasts beyond handover."
+      image={{ src: heroProject.image, alt: heroProject.imageAlt }}
     />
 
-    <section className="border-b border-white/10 py-20 md:py-24" aria-labelledby="developers-heading">
-      <div className="container-site">
+    <Scene tone="alt" aria-labelledby="developers-heading">
+      <div className="container-site scene-pad-t">
         <SectionHeader
           id="developers-heading"
           eyebrow="Developer Relationships"
           title="Property developers we have worked with"
           lead="We have collaborated with some of the Philippines’ leading real estate developers."
         />
-        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-          {developers.map((d) => (
-            <li key={d.name} className="flex flex-col items-center justify-center gap-5 bg-canvas px-8 py-12">
-              <Img src={d.image} alt={`${d.name} logo`} sizes="240px" className="h-12 w-auto max-w-[200px] object-contain opacity-85" />
+        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+          {developers.map((d, i) => (
+            <li
+              key={d.name}
+              className="group flex flex-col items-center justify-center gap-6 bg-canvas-alt px-8 py-[clamp(2.5rem,7vh,4.5rem)] transition-colors duration-500 hover:bg-surface"
+              data-rv
+              style={delay(200 + i * 90)}
+            >
+              <Img
+                src={d.image}
+                alt={`${d.name} logo`}
+                sizes="240px"
+                className="h-12 w-auto max-w-[200px] object-contain opacity-70 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+              />
               <span className="label">{d.name}</span>
             </li>
           ))}
         </ul>
       </div>
-    </section>
+      <div className="mt-[clamp(2rem,6vh,4.5rem)] border-y border-white/10 py-5" data-rv="fade" style={delay(500)}>
+        <Marquee
+          label="Who we work with"
+          speed={30}
+          separator={<span className="h-1.5 w-1.5 rotate-45 bg-signal/80" />}
+          itemClassName="font-display text-xl font-light tracking-tight text-ink/75 md:text-[1.6rem]"
+          items={collaboration.map((c) => c.title)}
+        />
+      </div>
+      <div className="h-[clamp(2rem,6.5vh,5rem)]" />
+    </Scene>
 
-    <section className="border-b border-white/10 bg-canvas-alt py-20 md:py-24" aria-labelledby="collab-heading">
-      <div className="container-site">
+    <Scene aria-labelledby="collab-heading">
+      <div className="container-site scene-pad">
         <SectionHeader
           id="collab-heading"
           eyebrow="Collaboration"
           title="Who we work alongside"
           lead="Our team works closely with architects, engineers and clients to integrate technology and acoustic principles throughout design and construction."
         />
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-2">
           {collaboration.map((c, i) => (
-            <Reveal key={c.title} delay={i * 60} className="bg-canvas p-8">
-              <h3 className="text-lg font-medium text-ink">{c.title}</h3>
-              <p className="mt-3 text-sm font-light leading-relaxed text-ink-secondary">{c.detail}</p>
-            </Reveal>
+            <div key={c.title} className="group bg-canvas p-7 transition-colors duration-500 hover:bg-surface md:p-8" data-rv style={delay(200 + i * 90)}>
+              <p className="font-mono text-[11px] text-ink-muted transition-colors group-hover:text-signal">0{i + 1}</p>
+              <h3 className="mt-4 font-display text-xl font-light text-ink md:text-2xl">{c.title}</h3>
+              <p className="mt-3 text-sm font-light leading-[1.75] text-ink-secondary">{c.detail}</p>
+            </div>
           ))}
         </div>
       </div>
-    </section>
+    </Scene>
 
-    <section className="border-b border-white/10 py-20 md:py-24" aria-labelledby="venues-heading">
-      <div className="container-site grid gap-12 lg:grid-cols-12">
+    <Scene tone="alt" aria-labelledby="venues-heading">
+      <div className="container-site grid gap-12 scene-pad lg:grid-cols-12 lg:gap-16">
         <div className="lg:col-span-5">
-          <p className="eyebrow mb-3">Hospitality Portfolio</p>
-          <h2 id="venues-heading" className="heading-section">
-            Hotels and resorts in our portfolio
+          <p className="eyebrow mb-5" data-rv>
+            Hospitality Portfolio
+          </p>
+          <h2 id="venues-heading" className="display-xl">
+            <RevealText text="Hotels and resorts in our portfolio" delay={80} />
           </h2>
-          <p className="prose-body mt-4">
+          <p className="prose-body mt-6" data-rv style={delay(300)}>
             Hospitality is the largest part of our portfolio: {hospitality.length} hotels, resorts, health clubs and
             serviced residences, from city hotels in Metro Manila to beach resorts in Cebu, Boracay and Palawan.
           </p>
-          <Link to="/sectors/hospitality" className="link-arrow mt-8">
+          <Link to="/sectors/hospitality" className="link-arrow mt-8" data-rv style={delay(400)}>
             View hospitality projects <ArrowRight />
           </Link>
         </div>
-        <ul className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:col-span-7">
+        <ul className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:col-span-7" data-rv style={delay(250)}>
           {hospitality.map((p) => (
             <li key={p.slug} className="border-b border-white/10">
-              <Link to={`/projects/${p.slug}`} className="flex items-baseline justify-between gap-4 py-3 text-sm text-ink-secondary transition-colors hover:text-ink">
-                <span>{p.name}</span>
+              <Link to={`/projects/${p.slug}`} className="group flex items-baseline justify-between gap-4 py-3 text-sm text-ink-secondary transition-colors hover:text-ink">
+                <span className="transition-transform duration-500 group-hover:translate-x-1">{p.name}</span>
                 <span className="shrink-0 font-mono text-[10.5px] uppercase tracking-wider text-ink-muted">{p.region}</span>
               </Link>
             </li>
           ))}
         </ul>
       </div>
-    </section>
+    </Scene>
 
-    <section className="bg-canvas-alt py-20 md:py-24" aria-labelledby="sectors-heading">
-      <div className="container-site grid gap-12 lg:grid-cols-2">
+    <Scene aria-labelledby="sectors-heading">
+      <div className="container-site grid gap-16 scene-pad lg:grid-cols-2 lg:gap-20">
         <div>
-          <p className="eyebrow mb-3">Industry Reach</p>
-          <h2 id="sectors-heading" className="heading-section">
-            Sectors our partnerships span
+          <p className="eyebrow mb-5" data-rv>
+            Industry Reach
+          </p>
+          <h2 id="sectors-heading" className="display-xl">
+            <RevealText text="Sectors our partnerships span" delay={80} />
           </h2>
-          <ul className="mt-8 divide-y divide-white/10 border-y border-white/10">
+          <ul className="mt-10 divide-y divide-white/10 border-y border-white/10" data-rv style={delay(300)}>
             {sectorsServed.map((s) => (
               <li key={s} className="flex items-center gap-3 py-3.5 text-sm text-ink-body">
                 <span className="h-1 w-1 bg-signal" aria-hidden="true" />
@@ -157,19 +186,23 @@ const Partners = () => (
           </ul>
         </div>
         <div>
-          <p className="eyebrow mb-3">Working with IHD</p>
-          <h2 className="heading-section">What partners gain</h2>
-          <dl className="mt-8 space-y-6">
+          <p className="eyebrow mb-5" data-rv>
+            Working with IHD
+          </p>
+          <h2 className="display-xl">
+            <RevealText text="What partners gain" delay={120} />
+          </h2>
+          <dl className="mt-10 space-y-8" data-rv style={delay(400)}>
             {benefits.map((b) => (
               <div key={b.title} className="border-l border-white/15 pl-5">
-                <dt className="text-base font-medium text-ink">{b.title}</dt>
-                <dd className="mt-1.5 text-sm font-light leading-relaxed text-ink-secondary">{b.detail}</dd>
+                <dt className="font-display text-lg font-light text-ink">{b.title}</dt>
+                <dd className="mt-1.5 text-sm font-light leading-[1.75] text-ink-secondary">{b.detail}</dd>
               </div>
             ))}
           </dl>
         </div>
       </div>
-    </section>
+    </Scene>
 
     <CtaBand title="Interested in working together?" lead="Let’s discuss how IHD can support your next development, venue or renovation." />
   </>

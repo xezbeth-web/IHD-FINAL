@@ -11,6 +11,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "images": "node scripts/optimize-images.mjs",
+    "icons": "node scripts/make-icons.mjs",
     "check": "node scripts/check-site.mjs"
   },
   "dependencies": {

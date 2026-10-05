@@ -1,83 +1,52 @@
-import { Link } from 'react-router-dom';
-import { disciplines } from '../data/disciplines';
-import { sectors } from '../data/projects';
+import { scrollToOffset } from '../lib/scroll';
 import { SITE } from '../lib/site';
 
+/** Back to the top, landing focus on the page's heading for keyboard and screen-reader users. */
+const backToTop = () => {
+  scrollToOffset(0);
+  const heading = document.querySelector<HTMLElement>('main h1');
+  if (heading) {
+    heading.setAttribute('tabindex', '-1');
+    heading.style.outline = 'none';
+    heading.focus({ preventScroll: true });
+  }
+};
+
+/**
+ * A single line that reads as the bottom edge of the final scene rather than a separate block:
+ * the legal name and contact details (kept on every page for trust and local search), plus a
+ * way back up. The final scene is shortened by this strip's height (motion.css) so the last
+ * screen still holds as one whole view.
+ */
 const Footer = () => (
-  <footer className="border-t border-white/10 bg-[#0a0c10] text-ink-secondary">
-    <div className="container-site py-16">
-      <div className="mb-12 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12">
-        <div className="space-y-4 sm:col-span-2 lg:col-span-3">
-          <Link to="/" className="inline-flex items-center gap-3">
-            <img src="/images/brand/ihd-mark.webp" alt="" width={140} height={64} className="h-6 w-auto" loading="lazy" />
-            <span className="text-sm font-medium tracking-tight text-ink">{SITE.legalName}</span>
-          </Link>
-          <p className="max-w-sm text-[13px] leading-relaxed text-ink-muted">
-            Technology and engineering consultancy for architectural acoustics, audiovisual systems, security, IT and
-            ELV infrastructure, IoT and guest room management — headquartered in the Philippines.
-          </p>
-        </div>
-
-        <nav aria-label="Disciplines" className="lg:col-span-3">
-          <h2 className="mb-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-ink">Disciplines</h2>
-          <ul className="space-y-2.5 text-[13px]">
-            {disciplines.map((d) => (
-              <li key={d.slug}>
-                <Link to={`/disciplines/${d.slug}`} className="transition-colors hover:text-ink">
-                  {d.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <nav aria-label="Sectors" className="lg:col-span-2">
-          <h2 className="mb-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-ink">Sectors</h2>
-          <ul className="space-y-2.5 text-[13px]">
-            {sectors.map((s) => (
-              <li key={s.slug}>
-                <Link to={`/sectors/${s.slug}`} className="transition-colors hover:text-ink">
-                  {s.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <nav aria-label="Practice" className="lg:col-span-2">
-          <h2 className="mb-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-ink">Practice</h2>
-          <ul className="space-y-2.5 text-[13px]">
-            <li><Link to="/about" className="transition-colors hover:text-ink">Practice Profile</Link></li>
-            <li><Link to="/about#leadership" className="transition-colors hover:text-ink">Leadership & Team</Link></li>
-            <li><Link to="/projects" className="transition-colors hover:text-ink">Project Portfolio</Link></li>
-            <li><Link to="/partners" className="transition-colors hover:text-ink">Developer Partners</Link></li>
-            <li><Link to="/contact" className="transition-colors hover:text-ink">Contact</Link></li>
-          </ul>
-        </nav>
-
-        <div className="sm:col-span-2 lg:col-span-2">
-          <h2 className="mb-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-ink">Engagement Desk</h2>
-          <dl className="space-y-3 text-[13px]">
-            <div>
-              <dt className="label mb-0.5">Technical enquiries</dt>
-              <dd><a href={`mailto:${SITE.email}`} className="text-ink transition-colors hover:text-signal">{SITE.email}</a></dd>
-            </div>
-            <div>
-              <dt className="label mb-0.5">Direct line</dt>
-              <dd><a href={`tel:${SITE.phoneE164}`} className="text-ink transition-colors hover:text-signal">{SITE.phoneDisplay}</a></dd>
-            </div>
-            <div>
-              <dt className="label mb-0.5">Office hours</dt>
-              <dd>{SITE.hours}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 border-t border-white/5 pt-8 font-mono text-[11px] text-ink-muted md:flex-row md:items-center md:justify-between">
-        <p>© {new Date().getFullYear()} {SITE.legalName}. Technology Consultancy.</p>
-        <p>Headquartered in the Philippines</p>
-      </div>
+  <footer className="site-footer relative z-10 bg-[#08090c] text-ink-muted">
+    <div className="container-site flex flex-col gap-4 border-t border-white/[0.06] py-6 font-mono text-[11px] tracking-[0.04em] md:flex-row md:items-center md:justify-between">
+      <p className="flex flex-wrap gap-x-6 gap-y-2">
+        <span>
+          © {new Date().getFullYear()} {SITE.legalName}
+        </span>
+        <a href={`mailto:${SITE.email}`} className="transition-colors hover:text-ink">
+          {SITE.email}
+        </a>
+        <a href={`tel:${SITE.phoneE164}`} className="transition-colors hover:text-ink">
+          {SITE.phoneDisplay}
+        </a>
+      </p>
+      <button
+        type="button"
+        onClick={backToTop}
+        className="group inline-flex items-center gap-2.5 self-start uppercase tracking-[0.16em] text-ink-secondary transition-colors hover:text-ink md:self-auto"
+      >
+        Back to top
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 transition-all duration-500 group-hover:-translate-y-0.5 group-hover:border-signal group-hover:text-signal"
+          aria-hidden="true"
+        >
+          <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M8 13V3M4 7l4-4 4 4" strokeLinecap="square" />
+          </svg>
+        </span>
+      </button>
     </div>
   </footer>
 );

@@ -34,6 +34,35 @@ template = template.replace(/<link rel="stylesheet"[^>]*href="(\/assets\/[^"]+\.
   return `<style>${css}</style>`;
 });
 
+// Each inner page is its own chunk (src/pages/lazy.ts). Preload the current page's chunk and its
+// imports in the HTML so they download alongside the main bundle instead of after it.
+const manifestPath = path.join(dist, '.vite', 'manifest.json');
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const pageFor = (route) => {
+  const [first, second] = route.split('/').filter(Boolean);
+  if (first === 'about') return 'About';
+  if (first === 'disciplines') return second ? 'DisciplineDetail' : 'Disciplines';
+  if (first === 'projects') return second ? 'ProjectDetail' : 'Projects';
+  if (first === 'sectors') return 'Sector';
+  if (first === 'partners') return 'Partners';
+  if (first === 'contact') return 'Contact';
+  return null;
+};
+const entryKey = Object.keys(manifest).find((k) => manifest[k].isEntry);
+const preloadedByEntry = new Set([entryKey, ...(manifest[entryKey].imports ?? [])]);
+const chunkPreloads = (route) => {
+  const page = pageFor(route);
+  if (!page) return '';
+  const files = new Set();
+  const walk = (key) => {
+    if (preloadedByEntry.has(key) || !manifest[key]) return;
+    files.add(manifest[key].file);
+    (manifest[key].imports ?? []).forEach(walk);
+  };
+  walk(`src/pages/${page}.tsx`);
+  return [...files].map((file) => `<link rel="modulepreload" crossorigin href="/${file}">`).join('\n    ');
+};
+
 const fileFor = (route) => path.join(dist, route === '/' ? 'index.html' : `${route.slice(1)}.html`);
 
 const write = (file, contents) => {
@@ -43,7 +72,8 @@ const write = (file, contents) => {
 
 const page = (route) => {
   const { html, head } = render(route);
-  return template.replace('<!--app-head-->', head).replace('<!--app-html-->', html);
+  const preloads = chunkPreloads(route);
+  return template.replace('<!--app-head-->', preloads ? `${head}\n    ${preloads}` : head).replace('<!--app-html-->', html);
 };
 
 for (const route of prerenderRoutes) {
@@ -97,6 +127,7 @@ ${prerenderRoutes
 write(path.join(dist, 'sitemap.xml'), sitemap);
 
 fs.rmSync(ssrDir, { recursive: true, force: true });
+fs.rmSync(path.join(dist, '.vite'), { recursive: true, force: true });
 console.log(
   `Prerendered ${prerenderRoutes.length} pages, 404.html, ${Object.keys(legacyRedirects).length} redirects and sitemap.xml`
 );

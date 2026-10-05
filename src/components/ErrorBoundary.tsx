@@ -20,7 +20,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   render() {
     if (!this.state.failed) return this.props.children;
     return (
-      <section className="flex min-h-[60vh] items-center py-24">
+      <section className="flex min-h-[100svh] items-center pb-24 pt-32">
         <div className="container-site">
           <p className="eyebrow mb-5">Something went wrong</p>
           <h1 className="font-display text-4xl font-light tracking-tight text-ink">This page could not be displayed</h1>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import InquiryForm from '../components/InquiryForm';
-import { PageHero } from '../components/ui';
+import Scene from '../components/Scene';
+import { PageHero, SectionHeader, delay } from '../components/ui';
 import { disciplines } from '../data/disciplines';
 import { breadcrumbs, graph, webPage } from '../lib/schema';
 import { Seo } from '../lib/seo';
@@ -48,11 +49,12 @@ const Contact = () => (
       ]}
       title="Contact IHD for engineering and technology advisory"
       lead="Whether it is a flagship hotel, a performance venue, a campus expansion or a resilient control center, tell us about your project. We respond within one business day."
+      compact
     />
 
-    <section className="py-16 md:py-20" aria-labelledby="form-heading">
-      <div className="container-site grid gap-12 lg:grid-cols-12 lg:grid-rows-[auto_1fr]">
-        <div className="lg:col-span-5 lg:row-start-1">
+    <Scene tone="alt" aria-labelledby="form-heading">
+      <div className="container-site grid items-start gap-12 scene-pad lg:grid-cols-12 lg:gap-x-16">
+        <div className="lg:col-span-5" data-rv style={delay(150)}>
           <div>
             <h2 className="label mb-5 text-ink-secondary">Direct contact</h2>
             <dl className="divide-y divide-white/10 border-y border-white/10">
@@ -80,9 +82,9 @@ const Contact = () => (
           </div>
         </div>
 
-        <div className="lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
-          <div className="rounded-sm border border-white/10 bg-surface p-5 sm:p-8 lg:sticky lg:top-28">
-            <h2 id="form-heading" className="mb-2 font-display text-2xl font-light text-ink">
+        <div className="lg:col-span-7">
+          <div className="rounded-lg border border-white/10 bg-surface p-5 sm:p-8" data-rv style={delay(250)}>
+            <h2 id="form-heading" className="mb-2 font-display text-3xl font-light text-ink">
               Send a project brief
             </h2>
             <p className="mb-8 text-sm font-light text-ink-secondary">Fields marked * are required.</p>
@@ -90,12 +92,17 @@ const Contact = () => (
           </div>
         </div>
 
-        <div className="space-y-12 lg:col-span-5 lg:row-start-2">
+      </div>
+    </Scene>
+
+    <Scene aria-labelledby="brief-heading">
+        <div className="container-site grid gap-14 scene-pad lg:grid-cols-2 lg:gap-20" data-rv style={delay(150)}>
           <div>
-            <h2 className="label mb-5 text-ink-secondary">What to include in your brief</h2>
+            <p className="eyebrow mb-5">Preparing a brief</p>
+            <h2 id="brief-heading" className="display-xl mb-10">What to include in your brief</h2>
             <ul className="space-y-3">
               {briefChecklist.map((item) => (
-                <li key={item} className="flex gap-3 text-sm font-light leading-relaxed text-ink-secondary">
+                <li key={item} className="flex gap-3 text-[15px] font-light leading-[1.75] text-ink-body">
                   <span className="mt-2 h-1 w-1 shrink-0 bg-signal" aria-hidden="true" />
                   {item}
                 </li>
@@ -104,8 +111,9 @@ const Contact = () => (
           </div>
 
           <div>
-            <h2 className="label mb-5 text-ink-secondary">What happens next</h2>
-            <ol className="space-y-5">
+            <p className="eyebrow mb-5">After you send it</p>
+            <h2 className="display-xl mb-10">What happens next</h2>
+            <ol className="space-y-6">
               {nextSteps.map((s, i) => (
                 <li key={s.title} className="border-l border-white/15 pl-5">
                   <p className="font-mono text-xs text-signal">0{i + 1}</p>
@@ -116,27 +124,24 @@ const Contact = () => (
             </ol>
           </div>
         </div>
-      </div>
-    </section>
+    </Scene>
 
-    <section className="border-t border-white/10 bg-canvas-alt py-16" aria-labelledby="explore-heading">
-      <div className="container-site">
-        <h2 id="explore-heading" className="label mb-6 text-ink-secondary">
-          Not sure which discipline you need?
-        </h2>
-        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
-          {disciplines.map((d) => (
-            <li key={d.slug}>
-              <Link to={`/disciplines/${d.slug}`} className="block h-full bg-canvas p-6 transition-colors hover:bg-surface-raised">
-                <span className="font-mono text-[11px] uppercase tracking-widest text-ink-muted">{d.index}</span>
-                <span className="mt-2 block text-base font-medium text-ink">{d.name}</span>
+    <Scene tone="deep" aria-labelledby="explore-heading">
+      <div className="container-site scene-pad">
+        <SectionHeader id="explore-heading" eyebrow="Disciplines" title="Not sure which discipline you need?" />
+        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+          {disciplines.map((d, i) => (
+            <li key={d.slug} data-rv style={delay(150 + i * 70)}>
+              <Link to={`/disciplines/${d.slug}`} className="group block h-full bg-canvas p-8 transition-colors duration-500 hover:bg-surface-raised md:p-9">
+                <span className="font-mono text-[11px] uppercase tracking-widest text-ink-muted transition-colors group-hover:text-signal">{d.index}</span>
+                <span className="mt-3 block font-display text-xl font-light text-ink">{d.name}</span>
                 <span className="mt-1 block text-[13px] font-light text-ink-secondary">{d.anchor}</span>
               </Link>
             </li>
           ))}
         </ul>
       </div>
-    </section>
+    </Scene>
   </>
 );
 

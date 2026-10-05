@@ -53,3 +53,36 @@
   src: url(../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2) format('woff2-variations');
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
+/* Metric-matched fallback for JetBrains Mono while it loads. Courier New has the same 0.6em
+   advance width; the overrides give it JetBrains Mono's measured ascent (1.02) and descent (0.30),
+   so swapping fonts doesn't move any text (no layout shift). */
+@font-face {
+  font-family: 'JetBrains Mono Fallback';
+  src: local('Courier New'), local('CourierNewPSMT');
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+  size-adjust: 100%;
+}
+
+/* Metric-matched fallbacks for the text faces, measured in Chrome against Arial on the site's own
+   copy: Plus Jakarta Sans (light) sets 5.5% wider than Arial, Inter ~6% wider. With these, text
+   wraps and sits the same before and after the web font arrives, so the vertically centred hero
+   doesn't jump. Ascent/descent overrides are divided by size-adjust (the browser scales them). */
+@font-face {
+  font-family: 'Plus Jakarta Sans Fallback';
+  src: local('Arial'), local('ArialMT'), local('Helvetica');
+  size-adjust: 105.5%;
+  ascent-override: 98.6%;
+  descent-override: 20.9%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial'), local('ArialMT'), local('Helvetica');
+  size-adjust: 106%;
+  ascent-override: 91.5%;
+  descent-override: 22.6%;
+  line-gap-override: 0%;
+}

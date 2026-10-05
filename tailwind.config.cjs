@@ -21,9 +21,9 @@ module.exports = {
         'signal-deep': '#4f46e5'
       },
       fontFamily: {
-        display: ['"Plus Jakarta Sans Variable"', '"Inter Variable"', 'system-ui', 'sans-serif'],
-        sans: ['"Inter Variable"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
-        mono: ['"JetBrains Mono Variable"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace']
+        display: ['"Plus Jakarta Sans Variable"', '"Plus Jakarta Sans Fallback"', '"Inter Variable"', 'system-ui', 'sans-serif'],
+        sans: ['"Inter Variable"', '"Inter Fallback"', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        mono: ['"JetBrains Mono Variable"', '"JetBrains Mono Fallback"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace']
       },
       maxWidth: {
         site: '80rem'

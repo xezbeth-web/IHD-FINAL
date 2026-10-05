@@ -1,8 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from '../components/Icons';
 import { Img, imageSize, ogImageFor } from '../components/Img';
-import Reveal from '../components/Reveal';
-import { Breadcrumbs, CtaBand, DisciplineChips, ProjectCard } from '../components/ui';
+import { RevealText } from '../components/Motion';
+import Scene from '../components/Scene';
+import { CtaBand, DisciplineChips, PageHero, ProjectCard, SectionHeader, delay } from '../components/ui';
 import { getDiscipline } from '../data/disciplines';
 import { getProject, projects, sectorName } from '../data/projects';
 import { getSectorPage } from '../data/sectorPages';
@@ -13,6 +14,9 @@ import NotFound from './NotFound';
 
 const listFormat = (items: string[]) =>
   items.length <= 1 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+
+/** Photographs narrower than this are shown framed rather than stretched full-bleed. */
+const FULL_BLEED_MIN_WIDTH = 1200;
 
 const ProjectDetail = () => {
   const { slug } = useParams();
@@ -52,6 +56,22 @@ const ProjectDetail = () => {
 
   const sameRegion = projects.filter((x) => x.region === p.region && x.slug !== p.slug);
   const sectorFocus = getSectorPage(p.sector);
+  const size = imageSize(p.image);
+  const fullBleed = (size?.width ?? 0) >= FULL_BLEED_MIN_WIDTH;
+
+  const facts = [
+    { k: 'Project type', v: p.types.join(', ') },
+    { k: 'Location', v: `${p.location}, Philippines` },
+    {
+      k: 'Sector',
+      v: (
+        <Link to={`/sectors/${p.sector}`} className="underline decoration-white/20 underline-offset-4 hover:text-signal">
+          {sectorName(p.sector)}
+        </Link>
+      )
+    },
+    { k: 'Disciplines', v: <DisciplineChips slugs={p.disciplines} linked /> }
+  ];
 
   return (
     <>
@@ -70,156 +90,171 @@ const ProjectDetail = () => {
         )}
       />
 
-      <section className="border-b border-white/10 pb-12 pt-14 md:pt-20">
-        <div className="container-site">
-          <Breadcrumbs trail={trail} />
-          <p className="eyebrow mb-5 flex items-center gap-2.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden="true" />
-            Project No. {p.projectNumber} · {p.types[0]}
-          </p>
-          <h1 className="max-w-4xl font-display text-4xl font-light leading-[1.1] tracking-tight text-ink md:text-5xl lg:text-[3.5rem]">
-            {p.name}
-          </h1>
-          <p className="mt-6 max-w-3xl text-base font-light leading-relaxed text-ink-secondary md:text-lg">{p.summary}</p>
-
-          <dl className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 md:grid-cols-4">
-            {[
-              { k: 'Project type', v: p.types.join(', ') },
-              { k: 'Location', v: `${p.location}, Philippines` },
-              {
-                k: 'Sector',
-                v: (
-                  <Link to={`/sectors/${p.sector}`} className="underline decoration-white/20 underline-offset-4 hover:text-signal">
-                    {sectorName(p.sector)}
-                  </Link>
-                )
-              },
-              { k: 'Disciplines', v: <DisciplineChips slugs={p.disciplines} linked /> }
-            ].map((row) => (
-              <div key={row.k} className="bg-canvas p-5">
-                <dt className="label mb-2">{row.k}</dt>
-                <dd className="text-sm text-ink">{row.v}</dd>
+      <PageHero
+        eyebrow={`Project No. ${p.projectNumber} · ${p.types[0]}`}
+        trail={trail}
+        title={p.name}
+        lead={p.summary}
+        image={fullBleed ? { src: p.image, alt: p.imageAlt } : undefined}
+        aside={
+          fullBleed ? undefined : (
+            <div className="mx-auto overflow-hidden rounded-lg border border-white/10 bg-surface-raised" style={{ maxWidth: Math.max((size?.width ?? 600) * 1.2, 360) }}>
+              <div className="rv-zoom">
+                <Img src={p.image} alt={p.imageAlt} priority sizes="(min-width: 1024px) 40vw, 100vw" className="max-h-[60svh] w-full object-cover" />
               </div>
-            ))}
-          </dl>
-        </div>
-      </section>
-
-      <section aria-label="Project photography" className="border-b border-white/10 py-10 md:py-12">
-        <div className="container-site">
-          <figure className="mx-auto" style={{ maxWidth: Math.max((imageSize(p.image)?.width ?? 1600) * 1.25, 720) }}>
-            <div className="overflow-hidden rounded-sm border border-white/10 bg-surface-raised">
-              <Img src={p.image} alt={p.imageAlt} priority sizes="(min-width: 1280px) 1216px, 100vw" className="max-h-[680px] w-full object-cover" />
             </div>
-            <figcaption className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted">{p.name} · {p.location}</figcaption>
-          </figure>
-          {p.gallery?.map((g) => (
-            <figure key={g.image} className="mt-8 md:w-1/2">
-              <div className="overflow-hidden rounded-sm border border-white/10 bg-surface-raised">
-                <Img src={g.image} alt={g.alt} sizes="(min-width: 768px) 50vw, 100vw" className="w-full object-cover" />
-              </div>
-              <figcaption className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted">{p.name} · additional view</figcaption>
-            </figure>
+          )
+        }
+      >
+        <dl className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-4">
+          {facts.map((row) => (
+            <div key={row.k} className="bg-canvas/80 p-5 backdrop-blur-sm md:p-6">
+              <dt className="label mb-2">{row.k}</dt>
+              <dd className="text-sm text-ink">{row.v}</dd>
+            </div>
           ))}
-        </div>
-      </section>
+        </dl>
+      </PageHero>
 
-      <div className="container-site grid gap-14 py-20 md:py-24 lg:grid-cols-12">
-        <section className="lg:col-span-5" aria-labelledby="overview-heading">
-          <p className="eyebrow mb-3">Project Overview</p>
-          <h2 id="overview-heading" className="heading-section">
-            About the project
-          </h2>
-          <div className="mt-6 space-y-5">
-            <p className="prose-body">{p.summary}</p>
-            <p className="prose-body">
-              IHD Philippines’ engagement on {p.name} covered {listFormat(scope.map((d) => d.name))}
-              {scope.length > 1 ? ' — coordinated within one consultancy.' : '.'}
-            </p>
-          </div>
-        </section>
-
-        <section className="lg:col-span-7" aria-labelledby="scope-heading">
-          <p className="eyebrow mb-3">Engineering Scope</p>
-          <h2 id="scope-heading" className="heading-section">
-            Disciplines engaged
-          </h2>
-          <p className="prose-body mt-4">
-            What each discipline typically covers in {sectorName(p.sector).toLowerCase()} projects like this one:
-          </p>
-          <ul className="mt-8 divide-y divide-white/10 border-y border-white/10">
-            {scope.map((d) => (
-              <li key={d.slug} className="py-6">
-                <h3 className="flex items-baseline gap-3 text-base font-medium text-ink">
-                  <span className="font-mono text-[11px] text-ink-muted">{d.index}</span>
-                  {d.name}
-                </h3>
-                <p className="mt-2 pl-8 text-sm font-light leading-relaxed text-ink-secondary">
-                  {sectorFocus?.focus.find((f) => f.discipline === d.slug)?.detail ?? d.summary}
-                </p>
-                <Link to={`/disciplines/${d.slug}`} className="link-arrow mt-4 pl-8">
-                  {d.anchor} <ArrowRight />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      <section className="border-t border-white/10 bg-canvas-alt py-20 md:py-24" aria-labelledby="similar-heading">
-        <div className="container-site">
-          <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <p className="eyebrow mb-3">Related Projects</p>
-              <h2 id="similar-heading" className="heading-section">
-                Similar {sectorName(p.sector).toLowerCase()} projects
-              </h2>
+      {/* Photography — full colour, undimmed */}
+      {(fullBleed || p.gallery) && (
+        <Scene tone="deep" aria-label="Project photography">
+          <div className="container-site scene-pad">
+            <div className={`grid items-end gap-6 ${p.gallery ? 'lg:grid-cols-12' : ''}`}>
+              {fullBleed && (
+                <figure className={p.gallery ? 'lg:col-span-8' : ''}>
+                  <div className="overflow-hidden rounded-lg border border-white/10 bg-surface-raised" data-rv="img" style={delay(100)}>
+                    <div className="rv-zoom">
+                      <Img src={p.image} alt={p.imageAlt} sizes="(min-width: 1280px) 1216px, 100vw" className="max-h-[72svh] w-full object-cover" />
+                    </div>
+                  </div>
+                  <figcaption className="mt-4 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted" data-rv style={delay(400)}>
+                    {p.name} · {p.location}
+                  </figcaption>
+                </figure>
+              )}
+              {p.gallery?.map((g) => (
+                <figure key={g.image} className={fullBleed ? 'lg:col-span-4' : 'mx-auto max-w-xl lg:col-span-12'}>
+                  <div className="overflow-hidden rounded-lg border border-white/10 bg-surface-raised" data-rv="img" style={delay(300)}>
+                    <div className="rv-zoom">
+                      <Img src={g.image} alt={g.alt} sizes="(min-width: 1024px) 33vw, 100vw" className="w-full object-cover" />
+                    </div>
+                  </div>
+                  <figcaption className="mt-4 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted" data-rv style={delay(500)}>
+                    {p.name} · additional view
+                  </figcaption>
+                </figure>
+              ))}
             </div>
-            <Link to={`/sectors/${p.sector}`} className="link-arrow">
-              {sectorName(p.sector)} projects <ArrowRight />
+          </div>
+        </Scene>
+      )}
+
+      {/* Overview and scope */}
+      <Scene tone="alt" as="div">
+        <div className="container-site grid gap-14 scene-pad lg:grid-cols-12 lg:gap-16">
+          <section className="lg:col-span-5" aria-labelledby="overview-heading">
+            <p className="eyebrow mb-5" data-rv>
+              Project Overview
+            </p>
+            <h2 id="overview-heading" className="display-xl">
+              <RevealText text="About the project" delay={80} />
+            </h2>
+            <div className="mt-8 space-y-6">
+              <p className="prose-body" data-rv style={delay(300)}>
+                {p.summary}
+              </p>
+              <p className="prose-body" data-rv style={delay(400)}>
+                IHD Philippines’ engagement on {p.name} covered {listFormat(scope.map((d) => d.name))}
+                {scope.length > 1 ? ' — coordinated within one consultancy.' : '.'}
+              </p>
+            </div>
+
+            {sameRegion.length > 0 && (
+              <div className="mt-10 border-t border-white/10 pt-6" data-rv style={delay(500)}>
+                <h3 className="label mb-4 text-ink-secondary">More projects in {p.region}</h3>
+                <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                  {sameRegion.map((x) => (
+                    <li key={x.slug}>
+                      <Link to={`/projects/${x.slug}`} className="text-ink-secondary transition-colors hover:text-ink">
+                        {x.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+
+          <section className="lg:col-span-7" aria-labelledby="scope-heading">
+            <p className="eyebrow mb-5" data-rv>
+              Engineering Scope
+            </p>
+            <h2 id="scope-heading" className="font-display text-2xl font-light text-ink md:text-3xl" data-rv style={delay(150)}>
+              Disciplines engaged
+            </h2>
+            <p className="prose-body mt-4" data-rv style={delay(250)}>
+              What each discipline typically covers in {sectorName(p.sector).toLowerCase()} projects like this one:
+            </p>
+            <ul className="mt-8 divide-y divide-white/10 border-y border-white/10">
+              {scope.map((d, i) => (
+                <li key={d.slug} className="py-[clamp(1rem,2.6vh,1.75rem)]" data-rv style={delay(350 + i * 90)}>
+                  <h3 className="flex items-baseline gap-3 font-display text-lg font-light text-ink">
+                    <span className="font-mono text-[11px] text-ink-muted">{d.index}</span>
+                    {d.name}
+                  </h3>
+                  <p className="mt-2 pl-8 text-sm font-light leading-[1.75] text-ink-secondary">
+                    {sectorFocus?.focus.find((f) => f.discipline === d.slug)?.detail ?? d.summary}
+                  </p>
+                  <Link to={`/disciplines/${d.slug}`} className="link-arrow mt-4 pl-8">
+                    {d.anchor} <ArrowRight />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      </Scene>
+
+      {/* Related projects and project-to-project navigation */}
+      <Scene aria-labelledby="similar-heading">
+        <div className="container-site scene-pad-t pb-12">
+          <SectionHeader
+            id="similar-heading"
+            eyebrow="Related Projects"
+            title={`Similar ${sectorName(p.sector).toLowerCase()} projects`}
+            action={
+              <Link to={`/sectors/${p.sector}`} className="link-arrow">
+                {sectorName(p.sector)} projects <ArrowRight />
+              </Link>
+            }
+          />
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {similar.map((x, i) => (
+              <div key={x.slug} className="h-full" data-rv style={delay(200 + i * 100)}>
+                <ProjectCard project={x} aspect="aspect-[16/9]" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <nav aria-label="Project navigation" className="mt-auto border-t border-white/10">
+          <div className="container-site grid grid-cols-2 divide-x divide-white/10">
+            <Link to={`/projects/${prev.slug}`} className="group py-9 pr-4 transition-colors hover:bg-white/[0.02]">
+              <span className="label flex items-center gap-2">
+                <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-500 group-hover:-translate-x-1" /> Previous project
+              </span>
+              <span className="mt-2 block font-display text-base text-ink-secondary transition-colors group-hover:text-ink md:text-xl">{prev.name}</span>
+            </Link>
+            <Link to={`/projects/${next.slug}`} className="group py-9 pl-4 text-right transition-colors hover:bg-white/[0.02] md:pl-8">
+              <span className="label flex items-center justify-end gap-2">
+                Next project <ArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
+              </span>
+              <span className="mt-2 block font-display text-base text-ink-secondary transition-colors group-hover:text-ink md:text-xl">{next.name}</span>
             </Link>
           </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {similar.map((x, i) => (
-              <Reveal key={x.slug} delay={i * 60} className="h-full">
-                <ProjectCard project={x} />
-              </Reveal>
-            ))}
-          </div>
-
-          {sameRegion.length > 0 && (
-            <div className="mt-14 border-t border-white/10 pt-8">
-              <h2 className="label mb-4 text-ink-secondary">More projects in {p.region}</h2>
-              <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                {sameRegion.map((x) => (
-                  <li key={x.slug}>
-                    <Link to={`/projects/${x.slug}`} className="text-ink-secondary transition-colors hover:text-ink">
-                      {x.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <nav aria-label="Project navigation" className="border-t border-white/10">
-        <div className="container-site grid grid-cols-2 divide-x divide-white/10">
-          <Link to={`/projects/${prev.slug}`} className="group py-8 pr-4 transition-colors hover:bg-white/[0.02]">
-            <span className="label flex items-center gap-2">
-              <ArrowLeft /> Previous project
-            </span>
-            <span className="mt-2 block font-display text-base text-ink-secondary group-hover:text-ink md:text-lg">{prev.name}</span>
-          </Link>
-          <Link to={`/projects/${next.slug}`} className="group py-8 pl-4 text-right transition-colors hover:bg-white/[0.02] md:pl-8">
-            <span className="label flex items-center justify-end gap-2">
-              Next project <ArrowRight />
-            </span>
-            <span className="mt-2 block font-display text-base text-ink-secondary group-hover:text-ink md:text-lg">{next.name}</span>
-          </Link>
-        </div>
-      </nav>
+        </nav>
+      </Scene>
 
       <CtaBand
         title={`Planning a similar ${p.types[0].toLowerCase()} project?`}

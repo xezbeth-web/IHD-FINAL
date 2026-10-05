@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from '../components/Icons';
+import Scene from '../components/Scene';
 import { navItems } from '../lib/nav';
 import { Seo } from '../lib/seo';
 
@@ -11,10 +12,13 @@ const NotFound = () => (
       path="/404"
       noindex
     />
-    <section className="flex min-h-[60vh] items-center py-24">
-      <div className="container-site">
-        <p className="eyebrow mb-5">Error 404</p>
-        <h1 className="font-display text-4xl font-light tracking-tight text-ink md:text-5xl">This page could not be found</h1>
+    <Scene tone="deep" className="overflow-hidden">
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="hero-grid absolute inset-0" />
+      </div>
+      <div className="container-site relative py-32">
+        <p className="eyebrow mb-6">Error 404</p>
+        <h1 className="display-hero">This page could not be found</h1>
         <p className="prose-body mt-6 max-w-xl">
           The page may have moved during our site update. Try one of the sections below, or browse the project
           portfolio.
@@ -39,7 +43,7 @@ const NotFound = () => (
           </ul>
         </nav>
       </div>
-    </section>
+    </Scene>
   </>
 );
 

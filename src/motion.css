@@ -1,0 +1,818 @@
+/* ───────────────────────── Motion system ─────────────────────────
+   Shared motion language for scenes, reveals, the scroll story, marquee and route changes.
+   Everything is progressive: content is only hidden once JS has marked the document with
+   `.js` (index.html), and reduced-motion users get static content (bottom of file). */
+
+.display-hero {
+  @apply font-display font-light text-ink;
+  font-size: clamp(2.6rem, 6.2vw, 5.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.display-xl {
+  @apply font-display font-light text-ink;
+  font-size: clamp(2.2rem, min(4.6vw, 7.6vh), 4.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+}
+
+/* ───── Scenes: full-viewport pages that stack as you scroll (Scene.tsx) ───── */
+.scene-anchor {
+  display: block;
+  height: 0;
+}
+
+.scene {
+  position: relative;
+  isolation: isolate;
+  /* Contain the entrance offset and depth layers within the scene. "clip" (unlike "hidden")
+     isn't a scroll container, so sticky children such as the portfolio filter bar still work. */
+  overflow: clip;
+}
+
+.scene-base {
+  background: theme('colors.canvas');
+}
+
+.scene-alt {
+  background: theme('colors.canvas-alt');
+}
+
+.scene-deep {
+  background: #08090c;
+}
+
+.scene-full {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+/* The final scene makes room for the one-line footer, so scene + footer fill exactly one
+   screen (the last scene is the one followed only by its hold spacer). */
+.scene-full:has(+ .scene-hold:last-child) {
+  min-height: calc(100vh - 4.5rem);
+  min-height: calc(100svh - 4.5rem);
+}
+
+/* Vertical padding scales with the viewport height, so a page's whole composition fits on
+   short laptop screens and holds with its title in view instead of scrolling past it. */
+.scene-pad {
+  padding-top: clamp(5.5rem, 12.5vh, 8rem);
+  padding-bottom: clamp(2rem, 6.5vh, 6rem);
+}
+
+.scene-pad-t {
+  padding-top: clamp(5.5rem, 12.5vh, 8rem);
+}
+
+/* Gentle snapping: a page you stop near settles into its full view (title at the top).
+   "proximity" never forces a snap mid-read, and it is off for reduced motion and without JS. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js {
+    scroll-snap-type: y proximity;
+  }
+
+  .js .scene-anchor {
+    scroll-snap-align: start;
+  }
+}
+
+.scene.is-stacked {
+  position: sticky;
+  box-shadow: 0 -32px 64px -32px rgba(0, 0, 0, 0.85);
+}
+
+/* The "hold": extra scroll during which a finished scene stays put, fully lit, before the next
+   one starts sliding over it. Only present once a scene actually stacks (JS, motion allowed). */
+.scene-hold {
+  display: none;
+}
+
+.scene.is-stacked + .scene-hold {
+  display: block;
+  height: 45vh;
+  height: 45svh;
+}
+
+/* Dims the scene as the next one slides over it (opacity written by Scene.tsx). */
+.scene-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: #040507;
+  opacity: 0;
+}
+
+/* Transform written by Scene.tsx while the scene is near the viewport. */
+.scene-inner {
+  transform-origin: 50% 100%;
+}
+
+/* Soft indigo glow. A radial gradient rather than a blurred shape: same look, no per-frame blur cost. */
+.glow {
+  background: radial-gradient(closest-side, rgba(79, 70, 229, 0.24), rgba(79, 70, 229, 0.08) 55%, transparent);
+}
+
+/* ───── Reveals: play when a scene gains .in-view (or a .reveal gains .visible) ───── */
+.js [data-rv] {
+  opacity: 0;
+  transform: translate3d(0, 2rem, 0);
+  filter: blur(8px);
+  transition:
+    opacity 0.9s var(--ease-out),
+    transform 1.2s var(--ease-out),
+    filter 0.9s var(--ease-out),
+    clip-path 1.4s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+.js [data-rv='fade'] {
+  transform: none;
+  filter: none;
+}
+
+.js [data-rv='img'] {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  clip-path: inset(14% 10% 14% 10%);
+}
+
+.js [data-rv='img'] .rv-zoom {
+  transform: scale(1.2);
+  transition: transform 1.8s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+.js [data-rv='line'] {
+  opacity: 1;
+  filter: none;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.js .in-view [data-rv],
+.js .visible [data-rv] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  clip-path: inset(0);
+}
+
+.js .in-view [data-rv='img'] .rv-zoom,
+.js .visible [data-rv='img'] .rv-zoom {
+  transform: none;
+}
+
+.rv-zoom {
+  height: 100%;
+  width: 100%;
+}
+
+/* Word-by-word headline masks (RevealText). */
+.rv-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.rv-word > span {
+  display: inline-block;
+}
+
+.js .rv-word > span {
+  transform: translate3d(0, 110%, 0);
+  transition: transform 1.15s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+.js .in-view .rv-word > span,
+.js .visible .rv-word > span {
+  transform: none;
+}
+
+/* Opening scene (Home hero, PageHero): keyframes start on first paint, independent of JS. */
+@keyframes rv-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 2rem, 0);
+    filter: blur(8px);
+  }
+}
+
+@keyframes rv-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rv-clip {
+  from {
+    clip-path: inset(14% 10% 14% 10%);
+  }
+}
+
+@keyframes rv-zoom {
+  from {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes rv-rise {
+  from {
+    transform: translate3d(0, 110%, 0);
+  }
+}
+
+.js .scene-intro [data-rv] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  clip-path: inset(0);
+  transition: none;
+  animation: rv-in 1.1s var(--ease-out) var(--d, 0ms) both;
+}
+
+.js .scene-intro [data-rv='fade'] {
+  animation-name: rv-fade;
+}
+
+.js .scene-intro [data-rv='img'] {
+  animation: rv-clip 1.4s var(--ease-out) var(--d, 0ms) both;
+}
+
+.js .scene-intro [data-rv='img'] .rv-zoom {
+  transform: none;
+  transition: none;
+  animation: rv-zoom 1.8s var(--ease-out) var(--d, 0ms) both;
+}
+
+.js .scene-intro .rv-word > span {
+  transform: none;
+  transition: none;
+  animation: rv-rise 1.15s var(--ease-out) var(--d, 0ms) both;
+}
+
+/* Hold the opening reveal at its first frame until the brand fonts are ready (index.html).
+   The text is also invisible meanwhile: Chrome counts text that re-wraps inside a clipped
+   reveal mask as layout shift, but never invisible text. */
+.js:not(.fonts-ready) .scene-intro [data-rv],
+.js:not(.fonts-ready) .scene-intro .rv-zoom,
+.js:not(.fonts-ready) .scene-intro .rv-word > span {
+  animation-play-state: paused;
+}
+
+.js:not(.fonts-ready) .scene-intro h1,
+.js:not(.fonts-ready) .scene-intro [data-rv]:not([data-rv='img']) {
+  visibility: hidden;
+}
+
+/* Generic block reveal (Reveal.tsx). */
+.js .reveal {
+  opacity: 0;
+  transform: translate3d(0, 1.75rem, 0);
+  filter: blur(6px);
+  transition:
+    opacity 0.9s var(--ease-out),
+    transform 1.1s var(--ease-out),
+    filter 0.9s var(--ease-out);
+}
+
+.js .reveal.visible,
+.js .reveal.section-header {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Statement that lights up word by word as it scrolls (ScrollLitText). */
+.scroll-lit.is-lit-tracking span {
+  --w: clamp(0, calc((var(--lit, 0) * (var(--n) + 10) - var(--i)) / 10), 1);
+  color: color-mix(in srgb, theme('colors.ink') calc(var(--w) * 100%), theme('colors.ink-muted'));
+  transition: color 0.25s linear;
+}
+
+/* ───── Marquee ───── */
+.marquee {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.marquee-sep {
+  display: inline-flex;
+  margin: 0 clamp(1.25rem, 3vw, 2.75rem);
+}
+
+/* ───── Scroll cue ───── */
+.scroll-cue {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 2.75rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.scroll-cue::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: theme('colors.signal');
+  animation: scroll-cue 2.2s var(--ease-in-out) infinite;
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* ───── Scroll story (StoryScroll.tsx) ───── */
+.story-track {
+  position: relative;
+}
+
+.js .story-track {
+  height: calc(100svh + var(--steps) * 72svh);
+}
+
+.story-stage {
+  position: relative;
+  overflow: hidden;
+}
+
+.js .story-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+}
+
+.story-media,
+.story-bg,
+.story-shade,
+.story-grid {
+  position: absolute;
+  inset: 0;
+}
+
+.story-bg {
+  opacity: 0;
+  transform: scale(1.12);
+  transition:
+    opacity 1.2s var(--ease-out),
+    transform 2.6s var(--ease-out);
+}
+
+.story-bg[data-on] {
+  opacity: 1;
+  transform: none;
+}
+
+.story-bg img {
+  filter: grayscale(0.4) brightness(0.48);
+}
+
+.story-shade {
+  background:
+    radial-gradient(ellipse 65% 55% at 50% 55%, rgba(12, 14, 18, 0.5), rgba(12, 14, 18, 0.94) 78%),
+    linear-gradient(180deg, rgba(12, 14, 18, 0.92), rgba(12, 14, 18, 0.15) 32%, rgba(12, 14, 18, 0.15) 68%, rgba(12, 14, 18, 0.96));
+}
+
+.story-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 88px 88px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 15%, transparent 72%);
+  mask-image: radial-gradient(ellipse at center, #000 15%, transparent 72%);
+}
+
+.story-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3.5rem 0;
+  text-align: center;
+}
+
+.js .story-state {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  padding: 0;
+}
+
+.js .story-k {
+  transition:
+    opacity 0.8s var(--ease-out),
+    transform 1.05s var(--ease-out),
+    filter 0.8s var(--ease-out);
+  transition-delay: calc(var(--k) * 70ms + 140ms);
+}
+
+.js .story-state[data-state='after'] .story-k,
+.js .story-state[data-state='before'] .story-k {
+  opacity: 0;
+  filter: blur(10px);
+  transition-delay: calc(var(--k) * 25ms);
+}
+
+.js .story-state[data-state='after'] .story-k {
+  transform: translate3d(0, 3.5rem, 0);
+}
+
+.js .story-state[data-state='before'] .story-k {
+  transform: translate3d(0, -3.5rem, 0);
+}
+
+.story-rail,
+.story-foot {
+  display: none !important;
+}
+
+.js .story-foot {
+  display: flex !important;
+}
+
+@media (min-width: 1280px) {
+  .js .story-rail {
+    display: block !important;
+    position: absolute;
+    left: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.story-rail ol {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding-left: 1.25rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.story-rail-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 1px;
+  height: 100%;
+  background: theme('colors.signal');
+  transform-origin: top;
+  transform: scaleY(0);
+}
+
+.story-rail button {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: theme('colors.ink-muted');
+  transition: color 0.4s var(--ease-out);
+}
+
+.story-rail button:hover,
+.story-rail button[data-on] {
+  color: theme('colors.ink');
+}
+
+.story-seg {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.story-seg i {
+  position: absolute;
+  inset: 0;
+  background: theme('colors.signal');
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* ───── Hero (Home) ───── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 96px 96px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, #000 10%, transparent 70%);
+  mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, #000 10%, transparent 70%);
+}
+
+/* ───── Project index (Home) ───── */
+.project-frame > a {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.1s var(--ease-out);
+}
+
+.project-frame > a[data-on] {
+  z-index: 1;
+  clip-path: inset(0);
+}
+
+.project-frame > a img {
+  transform: scale(1.12);
+  transition: transform 1.8s var(--ease-out);
+}
+
+.project-frame > a[data-on] img {
+  transform: none;
+}
+
+.project-row-bar {
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.project-row[data-on] .project-row-bar {
+  animation: project-row-bar var(--cycle, 5s) linear forwards;
+}
+
+.project-row[data-paused] .project-row-bar {
+  animation-play-state: paused;
+}
+
+@keyframes project-row-bar {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ───── Portfolio filter bar (Projects) ───── */
+/* Pinned to the top while browsing; drops below the header whenever the header slides back in. */
+.filter-bar {
+  top: 0;
+  transition: top 0.6s var(--ease-out);
+}
+
+.site-header:not([data-hidden]) ~ main .filter-bar {
+  top: 5rem;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ───── Sector panels (Home) ───── */
+.sector-panels {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .sector-panels {
+    display: flex;
+    height: clamp(22rem, calc(100svh - 25rem), 38rem);
+  }
+
+  .sector-panel {
+    flex: 1 1 0;
+    min-width: 0;
+    transition: flex-grow 0.9s var(--ease-out);
+  }
+
+  .sector-panel[data-on] {
+    flex-grow: 2.6;
+  }
+
+  /* Collapse the description of inactive panels so every title sits on the same baseline. */
+  .sector-reveal {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.9s var(--ease-out);
+  }
+
+  .sector-more {
+    display: block;
+    min-height: 0;
+    overflow: hidden;
+    transition:
+      opacity 0.6s var(--ease-out) 0.15s,
+      transform 0.8s var(--ease-out) 0.15s;
+  }
+
+  .sector-panel:not([data-on]) .sector-reveal {
+    grid-template-rows: 0fr;
+  }
+
+  .sector-panel:not([data-on]) .sector-more {
+    opacity: 0;
+    transform: translate3d(0, 1rem, 0);
+    transition-delay: 0s;
+  }
+}
+
+/* ───── Header ───── */
+.site-header {
+  transition:
+    transform 0.6s var(--ease-out),
+    background-color 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.site-header[data-hidden] {
+  transform: translate3d(0, -100%, 0);
+}
+
+.scroll-progress {
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* Full-screen mobile menu */
+.menu-panel {
+  clip-path: inset(0 0 100% 0);
+  visibility: hidden;
+  transition:
+    clip-path 0.7s var(--ease-in-out),
+    visibility 0s linear 0.7s;
+}
+
+.menu-panel[data-open] {
+  clip-path: inset(0);
+  visibility: visible;
+  transition:
+    clip-path 0.7s var(--ease-in-out),
+    visibility 0s;
+}
+
+.menu-panel li {
+  opacity: 0;
+  transform: translate3d(0, 1.5rem, 0);
+  transition:
+    opacity 0.5s var(--ease-out),
+    transform 0.7s var(--ease-out);
+}
+
+.menu-panel[data-open] li {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i) * 55ms + 250ms);
+}
+
+/* ───── Section rail (Home) ───── */
+.section-rail a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  font-family: theme('fontFamily.mono');
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: theme('colors.ink-muted');
+}
+
+.section-rail a span {
+  opacity: 0;
+  transform: translate3d(0.5rem, 0, 0);
+  transition:
+    opacity 0.4s var(--ease-out),
+    transform 0.5s var(--ease-out);
+}
+
+.section-rail:hover a span,
+.section-rail a:focus-visible span {
+  opacity: 1;
+  transform: none;
+}
+
+.section-rail a i {
+  display: block;
+  height: 1px;
+  width: 0.9rem;
+  background: currentColor;
+  transition:
+    width 0.5s var(--ease-out),
+    background-color 0.4s;
+}
+
+.section-rail a[aria-current] {
+  color: theme('colors.ink');
+}
+
+.section-rail a[aria-current] i {
+  width: 2rem;
+  background: theme('colors.signal');
+}
+
+/* ───── Route transitions (App.tsx) ───── */
+.route-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  background: #08090c;
+  animation: route-wipe 0.95s var(--ease-in-out) forwards;
+}
+
+.route-wipe::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: theme('colors.signal');
+  box-shadow: 0 0 18px theme('colors.signal');
+}
+
+@keyframes route-wipe {
+  0%,
+  30% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -101%, 0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 1.1s var(--ease-out) 0.2s both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 3rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ───── Reduced motion ───── */
+@media (prefers-reduced-motion: reduce) {
+  .scene-inner,
+  [data-depth],
+  .story-bg,
+  .project-frame > a img,
+  .site-header {
+    transform: none !important;
+  }
+
+  .scene-shade,
+  .route-wipe,
+  .scroll-cue::after {
+    display: none;
+  }
+
+  .js [data-rv],
+  .js .reveal,
+  .js .rv-word > span {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+
+  .js .story-k {
+    transform: none !important;
+    filter: none !important;
+    transition: opacity 0.25s linear !important;
+  }
+
+  .project-frame > a {
+    transition: none;
+  }
+
+  .page-enter,
+  .project-row[data-on] .project-row-bar,
+  .js .scene-intro [data-rv],
+  .js .scene-intro .rv-zoom,
+  .js .scene-intro .rv-word > span {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

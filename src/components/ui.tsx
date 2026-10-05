@@ -1,15 +1,20 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { getDiscipline } from '../data/disciplines';
 import type { Project } from '../data/projects';
 import { ArrowRight, ArrowUpRight } from './Icons';
 import { Img } from './Img';
+import { RevealText } from './Motion';
 import Reveal from './Reveal';
+import Scene from './Scene';
 
 export interface Crumb {
   name: string;
   path: string;
 }
+
+/** Reveal delay for `[data-rv]` children. */
+export const delay = (ms: number) => ({ '--d': `${ms}ms` }) as CSSProperties;
 
 export const Breadcrumbs = ({ trail }: { trail: Crumb[] }) => (
   <nav aria-label="Breadcrumb" className="mb-8">
@@ -39,55 +44,113 @@ export const Breadcrumbs = ({ trail }: { trail: Crumb[] }) => (
 
 interface PageHeroProps {
   eyebrow: string;
-  title: ReactNode;
+  title: string;
   lead?: ReactNode;
   trail?: Crumb[];
   children?: ReactNode;
   aside?: ReactNode;
+  /** Full-bleed photograph behind the masthead (manifest key + alt text). */
+  image?: { src: string; alt: string };
+  /** Shorter masthead for pages whose first job is a task (e.g. the contact form). */
+  compact?: boolean;
 }
 
-/** Inner-page masthead: breadcrumb, eyebrow, the page's single H1 and a lead paragraph. */
-export const PageHero = ({ eyebrow, title, lead, trail, children, aside }: PageHeroProps) => (
-  <section className="border-b border-white/10 pb-16 pt-14 md:pb-20 md:pt-20">
-    <div className="container-site">
-      {trail && <Breadcrumbs trail={trail} />}
+/**
+ * Inner-page opening scene: breadcrumb, eyebrow, the page's single H1 (revealed word by word)
+ * and a lead, optionally over a full-bleed project photograph that drifts as the page scrolls.
+ */
+export const PageHero = ({ eyebrow, title, lead, trail, children, aside, image, compact = false }: PageHeroProps) => (
+  <Scene full={!compact} aria-labelledby="page-title" className="scene-intro overflow-hidden">
+    {image ? (
+      <div className="absolute inset-0" data-depth="120">
+        <div className="absolute inset-0" data-rv="fade">
+          <Img src={image.src} alt={image.alt} priority sizes="100vw" className="h-full w-full object-cover opacity-50 grayscale-[35%]" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/75 to-canvas/30" aria-hidden="true" />
+        <div className="absolute inset-0 bg-gradient-to-r from-canvas/85 via-canvas/30 to-transparent" aria-hidden="true" />
+      </div>
+    ) : (
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div className="absolute -right-[12vw] -top-[26vh] h-[75vh] w-[75vh] glow" />
+        <div className="hero-grid absolute inset-0" />
+      </div>
+    )}
+
+    <div className={`container-site relative flex flex-1 flex-col pt-32 ${compact ? 'pb-14 md:pb-16' : 'justify-end pb-[clamp(2rem,7vh,6rem)]'}`}>
+      {trail && (
+        <div data-rv="fade">
+          <Breadcrumbs trail={trail} />
+        </div>
+      )}
       <div className={aside ? 'grid gap-12 lg:grid-cols-12 lg:items-end' : ''}>
-        <div className={aside ? 'lg:col-span-7' : 'max-w-4xl'}>
-          <p className="eyebrow mb-5 flex items-center gap-2.5">
+        <div className={aside ? 'lg:col-span-7' : 'max-w-5xl'}>
+          <p className="eyebrow mb-7 flex items-center gap-2.5" data-rv style={delay(60)}>
             <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden="true" />
             {eyebrow}
           </p>
-          <h1 className="font-display text-4xl font-light leading-[1.1] tracking-tight text-ink md:text-5xl lg:text-[3.5rem]">
-            {title}
+          <h1
+            id="page-title"
+            className="font-display font-light text-ink [font-size:clamp(2.4rem,min(5vw,8.6vh),4.75rem)] [letter-spacing:-0.035em] [line-height:1.04]"
+          >
+            <RevealText text={title} delay={40} step={22} />
           </h1>
-          {lead && <p className="mt-6 max-w-2xl text-base font-light leading-relaxed text-ink-secondary md:text-lg">{lead}</p>}
-          {children}
+          {lead && (
+            <p className="mt-8 max-w-2xl text-base font-light leading-[1.75] text-ink-body md:text-lg md:leading-[1.7]" data-rv style={delay(250)}>
+              {lead}
+            </p>
+          )}
+          {children && (
+            <div data-rv style={delay(380)}>
+              {children}
+            </div>
+          )}
         </div>
-        {aside && <div className="lg:col-span-5">{aside}</div>}
+        {aside && (
+          <div className="lg:col-span-5" data-rv="img" style={delay(350)}>
+            {aside}
+          </div>
+        )}
       </div>
+      {!compact && (
+        <div className="mt-[clamp(1.5rem,5vh,3.5rem)] hidden items-center gap-4 [@media(min-width:768px)_and_(min-height:840px)]:flex" data-rv="fade" style={delay(900)} aria-hidden="true">
+          <span className="scroll-cue" />
+          <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-muted">Scroll</span>
+        </div>
+      )}
     </div>
-  </section>
+  </Scene>
 );
 
 interface SectionHeaderProps {
   eyebrow: string;
-  title: ReactNode;
+  title: string;
   lead?: ReactNode;
   id?: string;
   action?: ReactNode;
 }
 
+/** Section title block. Plays its own reveal, so it works inside or outside a Scene. */
 export const SectionHeader = ({ eyebrow, title, lead, id, action }: SectionHeaderProps) => (
-  <Reveal>
-    <div className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
+  <Reveal className="section-header">
+    <div className="mb-[clamp(2rem,6vh,4rem)] flex flex-col justify-between gap-8 md:flex-row md:items-end">
       <div className="max-w-3xl">
-        <p className="eyebrow mb-3">{eyebrow}</p>
-        <h2 id={id} className="heading-section">
-          {title}
+        <p className="eyebrow mb-5" data-rv>
+          {eyebrow}
+        </p>
+        <h2 id={id} className="display-xl">
+          <RevealText text={title} delay={80} />
         </h2>
-        {lead && <p className="prose-body mt-4 max-w-2xl">{lead}</p>}
+        {lead && (
+          <p className="prose-body mt-6 max-w-2xl" data-rv style={delay(300)}>
+            {lead}
+          </p>
+        )}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && (
+        <div className="shrink-0" data-rv style={delay(400)}>
+          {action}
+        </div>
+      )}
     </div>
   </Reveal>
 );
@@ -127,16 +190,21 @@ export const ProjectCard = ({
 }: ProjectCardProps) => {
   const Heading = headingLevel;
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-sm border border-white/10 bg-surface transition-colors hover:border-white/20">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-white/10 bg-surface transition-colors duration-500 hover:border-white/25">
       <div className={`relative ${aspect} overflow-hidden bg-surface-raised`}>
-        <Img src={project.image} alt={project.imageAlt} sizes={sizes} className="img-treatment h-full w-full object-cover" />
-        <span className="absolute left-3 top-3 bg-black/70 px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+        <Img
+          src={project.image}
+          alt={project.imageAlt}
+          sizes={sizes}
+          className="h-full w-full object-cover grayscale-[35%] transition duration-[1200ms] ease-out group-hover:scale-[1.05] group-hover:grayscale-0"
+        />
+        <span className="absolute left-3 top-3 rounded-sm bg-black/70 px-2.5 py-1 font-mono text-[10.5px] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
           {project.types[0]} · {project.region}
         </span>
       </div>
-      <div className="flex flex-1 flex-col justify-between gap-6 p-6">
+      <div className="flex flex-1 flex-col justify-between gap-5 p-6">
         <div>
-          <p className="label mb-1.5">{project.location}</p>
+          <p className="label mb-2">{project.location}</p>
           <Heading className="font-display text-lg font-normal text-ink">
             <Link to={`/projects/${project.slug}`} className="after:absolute after:inset-0">
               {project.name}
@@ -145,8 +213,11 @@ export const ProjectCard = ({
         </div>
         <div className="flex items-end justify-between gap-4 border-t border-white/10 pt-4">
           <DisciplineChips slugs={project.disciplines} />
-          <span className="shrink-0 text-ink-secondary transition-colors group-hover:text-signal" aria-hidden="true">
-            <ArrowUpRight className="h-4 w-4" />
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/15 text-ink-secondary transition-all duration-500 group-hover:rotate-45 group-hover:border-signal group-hover:text-signal"
+            aria-hidden="true"
+          >
+            <ArrowUpRight className="h-3.5 w-3.5" />
           </span>
         </div>
       </div>
@@ -154,6 +225,7 @@ export const ProjectCard = ({
   );
 };
 
+/** Closing scene on inner pages: one clear next step. */
 export const CtaBand = ({
   title = 'Planning a venue, hotel or building that needs to perform?',
   lead = 'Share the project type, location and stage. Our discipline leads will review your brief and respond within one business day.'
@@ -161,23 +233,33 @@ export const CtaBand = ({
   title?: string;
   lead?: string;
 }) => (
-  <section className="border-t border-white/10 bg-canvas-alt py-20 md:py-24">
-    <div className="container-site">
-      <Reveal>
-        <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
-          <div className="lg:col-span-8">
-            <p className="eyebrow mb-3">Engagement Desk</p>
-            <h2 className="heading-section">{title}</h2>
-            <p className="prose-body mt-4 max-w-2xl">{lead}</p>
-          </div>
-          <div className="flex flex-wrap gap-3 lg:col-span-4 lg:justify-end">
-            <Link to="/contact" className="btn-primary">
-              Request technical advisory
-              <ArrowRight />
-            </Link>
-          </div>
-        </div>
-      </Reveal>
+  <Scene tone="deep" aria-labelledby="cta-heading" className="overflow-hidden">
+    <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+      <div className="absolute left-1/2 top-1/2 h-[70vh] w-[70vh] -translate-x-1/2 -translate-y-1/2 glow" />
+      <div className="story-grid" />
     </div>
-  </section>
+    <div className="container-site relative flex flex-col items-center scene-pad text-center">
+      <p className="eyebrow mb-7" data-rv>
+        Engagement Desk
+      </p>
+      <h2
+        id="cta-heading"
+        className="max-w-4xl font-display font-light text-ink [font-size:clamp(2.2rem,4.8vw,4.5rem)] [letter-spacing:-0.03em] [line-height:1.06]"
+      >
+        <RevealText text={title} delay={80} step={40} />
+      </h2>
+      <p className="prose-body mt-8 max-w-xl" data-rv style={delay(450)}>
+        {lead}
+      </p>
+      <div className="mt-11 flex flex-wrap justify-center gap-3" data-rv style={delay(600)}>
+        <Link to="/contact" className="btn-primary">
+          Request technical advisory
+          <ArrowRight />
+        </Link>
+        <Link to="/projects" className="btn-ghost">
+          View the portfolio
+        </Link>
+      </div>
+    </div>
+  </Scene>
 );
