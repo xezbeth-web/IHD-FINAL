@@ -566,9 +566,9 @@
   }
 }
 
-/* ───── Custom scrollbar (ScrollBar.tsx) ───── */
-/* Native scrollbars are hidden everywhere — the page and any inner scroll area — so only the
-   site's own bar shows. Scrolling itself (wheel, touch, keyboard, trackpad) is unaffected. */
+/* ───── Scrollbars ───── */
+/* Hidden everywhere — the page and any inner scroll area. Scrolling itself (wheel, touch,
+   keyboard, trackpad) is unaffected. */
 html,
 body,
 * {
@@ -581,57 +581,6 @@ body::-webkit-scrollbar,
   display: none;
   width: 0;
   height: 0;
-}
-
-.site-scrollbar {
-  display: none;
-}
-
-.custom-scrollbar .site-scrollbar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 55;
-  display: block;
-  width: 12px;
-}
-
-/* Hairline track */
-.site-scrollbar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 4px;
-  bottom: 0;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.site-scrollbar-thumb {
-  position: absolute;
-  top: 0;
-  right: 4px;
-  width: 2px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.2);
-  cursor: grab;
-  will-change: transform;
-  transition:
-    width 0.3s var(--ease-out),
-    right 0.3s var(--ease-out),
-    background-color 0.35s linear,
-    box-shadow 0.35s linear;
-}
-
-.site-scrollbar:hover .site-scrollbar-thumb,
-.site-scrollbar-thumb[data-dragging] {
-  right: 3px;
-  width: 4px;
-}
-
-.site-scrollbar-thumb[data-dragging] {
-  cursor: grabbing;
 }
 
 /* ───── Portfolio filter bar (Projects) ───── */
