@@ -94,7 +94,7 @@ const StoryScroll = ({ headingId }: { headingId: string }) => {
           </div>
 
           {/* Stage */}
-          <div className="story-states relative flex-1 xl:px-64">
+          <div className="story-states relative flex-1">
             {steps.map((d, i) => {
               const count = projectsByDiscipline(d.slug).length;
               const state = i === active ? 'active' : i < active ? 'before' : 'after';

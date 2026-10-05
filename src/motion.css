@@ -401,7 +401,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3.5rem 0;
+  padding-block: 3.5rem;
   text-align: center;
 }
 
@@ -409,7 +409,16 @@
   position: absolute;
   inset: 0;
   justify-content: center;
-  padding: 0;
+  padding-block: 0;
+}
+
+/* Where the index rail shows (xl), keep a clear gutter on both sides so centred headlines wrap
+   before they reach it. Set on the states themselves: they're absolutely positioned, so padding
+   on their container wouldn't constrain them. */
+@media (min-width: 1280px) {
+  .js .story-state {
+    padding-inline: 18rem;
+  }
 }
 
 .js .story-k {
