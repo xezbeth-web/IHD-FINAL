@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation, useNavigationType } from 'react-r
 import ErrorBoundary from './components/ErrorBoundary';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import ScrollBar from './components/ScrollBar';
 import { isInPlace } from './lib/nav';
 import type { Pages } from './pages/registry';
 import { legacyRedirects } from './routes';
@@ -65,6 +66,7 @@ const App = ({ pages }: { pages: Pages }) => {
       </a>
       <NavigationManager swap={swap.current} />
       <Header />
+      <ScrollBar />
       {navigated.current && <div key={`wipe-${pageKey.current}`} className="route-wipe" aria-hidden="true" />}
       <main id="main">
         <div key={pageKey.current} className={navigated.current ? 'page-enter' : undefined}>

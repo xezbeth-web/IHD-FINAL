@@ -16,6 +16,20 @@ export interface Crumb {
 /** Reveal delay for `[data-rv]` children. */
 export const delay = (ms: number) => ({ '--d': `${ms}ms` }) as CSSProperties;
 
+/** Opening-scene scroll hint, pinned near the bottom of the screen so it's always visible. */
+export const ScrollCue = () => (
+  <div className="pointer-events-none absolute inset-x-0 bottom-[clamp(1.25rem,4vh,2.5rem)] z-10 hidden md:block" aria-hidden="true">
+    <div className="container-site flex items-center gap-4" data-rv="fade" style={delay(900)}>
+      <span className="scroll-cue" />
+      <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-muted">Scroll</span>
+    </div>
+  </div>
+);
+
+/** Opening-scene padding: clears the header above and the scroll cue below, so the content
+ *  block sits vertically centred in the screen. */
+export const HERO_PAD = 'py-[clamp(6rem,12vh,8rem)]';
+
 export const Breadcrumbs = ({ trail }: { trail: Crumb[] }) => (
   <nav aria-label="Breadcrumb" className="mb-8">
     <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted">
@@ -76,7 +90,7 @@ export const PageHero = ({ eyebrow, title, lead, trail, children, aside, image, 
       </div>
     )}
 
-    <div className={`container-site relative flex flex-1 flex-col pt-32 ${compact ? 'pb-14 md:pb-16' : 'justify-end pb-[clamp(2rem,7vh,6rem)]'}`}>
+    <div className={`container-site relative flex flex-1 flex-col ${compact ? 'pb-14 pt-32 md:pb-16' : `justify-center ${HERO_PAD}`}`}>
       {trail && (
         <div data-rv="fade">
           <Breadcrumbs trail={trail} />
@@ -111,13 +125,8 @@ export const PageHero = ({ eyebrow, title, lead, trail, children, aside, image, 
           </div>
         )}
       </div>
-      {!compact && (
-        <div className="mt-[clamp(1.5rem,5vh,3.5rem)] hidden items-center gap-4 [@media(min-width:768px)_and_(min-height:840px)]:flex" data-rv="fade" style={delay(900)} aria-hidden="true">
-          <span className="scroll-cue" />
-          <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-muted">Scroll</span>
-        </div>
-      )}
     </div>
+    {!compact && <ScrollCue />}
   </Scene>
 );
 

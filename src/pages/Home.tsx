@@ -8,6 +8,7 @@ import { CountUp, RevealText, ScrollLitText } from '../components/Motion';
 import Scene from '../components/Scene';
 import SectionRail from '../components/SectionRail';
 import StoryScroll from '../components/StoryScroll';
+import { HERO_PAD, ScrollCue } from '../components/ui';
 import { getDiscipline, disciplines } from '../data/disciplines';
 import { lifecycle } from '../data/practice';
 import { getProject, projects, regions, sectors } from '../data/projects';
@@ -221,7 +222,7 @@ const Home = () => (
         <div className="hero-grid absolute inset-0" />
       </div>
 
-      <div className="container-site relative flex flex-1 flex-col justify-center scene-pad-t pb-10">
+      <div className={`container-site relative flex flex-1 flex-col justify-center ${HERO_PAD}`}>
         <div className="grid items-center gap-14 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-8 xl:col-span-7">
             <p className="eyebrow-muted mb-7 flex items-center gap-2.5" data-rv>
@@ -298,10 +299,7 @@ const Home = () => (
         </div>
       </div>
 
-      <div className="container-site relative hidden items-center gap-4 pb-10 [@media(min-width:768px)_and_(min-height:840px)]:flex" data-rv="fade" style={d(900)} aria-hidden="true">
-        <span className="scroll-cue" />
-        <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-ink-muted">Scroll</span>
-      </div>
+      <ScrollCue />
     </Scene>
 
     {/* 02 · Practice statement */}

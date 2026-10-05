@@ -108,7 +108,14 @@ const DisciplinePage = ({ slug }: { slug?: string }) => {
           <SectionHeader id="capabilities-heading" eyebrow="Technical Capabilities" title="Core specialisations" />
           <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
             {d.capabilities.map((c, i) => (
-              <div key={c.title} className="group bg-canvas p-6 transition-colors duration-500 hover:bg-surface md:p-7" data-rv style={delay(150 + i * 60)}>
+              <div
+                key={c.title}
+                // The last box stretches across any empty cells left in its row: on 2 columns when
+                // the count is odd, and on 3 columns when it leaves one or two cells over.
+                className="group bg-canvas p-6 transition-colors duration-500 hover:bg-surface sm:max-lg:[&:last-child:nth-child(odd)]:col-span-2 md:p-7 lg:[&:last-child:nth-child(3n+1)]:col-span-3 lg:[&:last-child:nth-child(3n+2)]:col-span-2"
+                data-rv
+                style={delay(150 + i * 60)}
+              >
                 <dt className="font-display text-lg font-light text-ink">
                   <span className="mb-3 block font-mono text-[11px] text-ink-muted transition-colors group-hover:text-signal">
                     {String(i + 1).padStart(2, '0')}
