@@ -1,55 +1,78 @@
-import { Route, Routes, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
-import Home from './pages/Home';
-import About from './pages/About';
-import Projects from './pages/Projects';
-import ProjectDetail from './pages/ProjectDetail';
-import Services from './pages/Services';
-import Contact from './pages/Contact';
-import Partners from './pages/Partners';
-import NotFound from './pages/NotFound';
-import Navbar from './components/Navbar';
+import { useEffect, useRef } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
 import Footer from './components/Footer';
+import Header from './components/Header';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import DisciplineDetail from './pages/DisciplineDetail';
+import Disciplines from './pages/Disciplines';
+import Home from './pages/Home';
+import NotFound from './pages/NotFound';
+import Partners from './pages/Partners';
+import ProjectDetail from './pages/ProjectDetail';
+import Projects from './pages/Projects';
+import Sector from './pages/Sector';
+import { legacyRedirects } from './routes';
 
-// Service pages
-import { Acoustics } from './pages/Services/acoustics.tsx';
-import { AudioVisual } from './pages/Services/audiovisual.tsx';
-import { Security } from './pages/Services/security.tsx';
-import { InfoTech } from './pages/Services/infotech.tsx';
-import { IOT } from './pages/Services/iot.tsx';
-import { GRMS } from './pages/Services/grms.tsx';
-
-const ScrollToTop = () => {
-  const location = useLocation();
+/** Scrolls to the top (or hash target) on navigation and moves focus to the new page's heading
+ *  so screen-reader users hear that the page changed. The initial load is left alone. */
+const NavigationManager = () => {
+  const { pathname, hash } = useLocation();
+  const firstRender = useRef(true);
   useEffect(() => {
+    if (hash) {
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView();
+      return;
+    }
     window.scrollTo({ top: 0 });
-  }, [location.pathname]);
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const heading = document.querySelector<HTMLElement>('main h1');
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      heading.style.outline = 'none';
+      heading.focus({ preventScroll: true });
+    }
+  }, [pathname, hash]);
   return null;
 };
 
 const App = () => {
+  const { pathname } = useLocation();
   return (
-    <div className="min-h-screen bg-primary text-white">
-      <Navbar />
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projects/:slug" element={<ProjectDetail />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/partners" element={<Partners />} />
-        <Route path="/services/acoustics" element={<Acoustics />} />
-        <Route path="/services/audio-visual" element={<AudioVisual />} />
-        <Route path="/services/security" element={<Security />} />
-        <Route path="/services/infotech" element={<InfoTech />} />
-        <Route path="/services/iot" element={<IOT />} />
-        <Route path="/services/grms" element={<GRMS />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+    <>
+      <a
+        href="#main"
+        className="sr-only z-[60] bg-white px-4 py-2 text-sm text-canvas focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Skip to content
+      </a>
+      <NavigationManager />
+      <Header />
+      <main id="main" className="pt-20">
+        <ErrorBoundary key={pathname}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/disciplines" element={<Disciplines />} />
+            <Route path="/disciplines/:slug" element={<DisciplineDetail />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:slug" element={<ProjectDetail />} />
+            <Route path="/sectors/:slug" element={<Sector />} />
+            <Route path="/partners" element={<Partners />} />
+            <Route path="/contact" element={<Contact />} />
+            {Object.entries(legacyRedirects).map(([from, to]) => (
+              <Route key={from} path={from} element={<Navigate to={to} replace />} />
+            ))}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ErrorBoundary>
+      </main>
       <Footer />
-    </div>
+    </>
   );
 };
 

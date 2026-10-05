@@ -2,9 +2,10 @@ import { PropsWithChildren, useEffect, useRef } from 'react';
 
 interface RevealProps extends PropsWithChildren {
   delay?: number;
+  className?: string;
 }
 
-const Reveal = ({ children, delay = 0 }: RevealProps) => {
+const Reveal = ({ children, delay = 0, className = '' }: RevealProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -16,10 +17,11 @@ const Reveal = ({ children, delay = 0 }: RevealProps) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
     );
 
     observer.observe(element);
@@ -28,11 +30,7 @@ const Reveal = ({ children, delay = 0 }: RevealProps) => {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className="reveal"
-      style={{ transitionDelay: `${delay}ms` }}
-    >
+    <div ref={ref} className={`reveal ${className}`} style={delay ? { transitionDelay: `${delay}ms` } : undefined}>
       {children}
     </div>
   );

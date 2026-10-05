@@ -1,0 +1,588 @@
+{
+  "projects/ascott": {
+    "width": 640,
+    "height": 427,
+    "widths": [
+      480,
+      640
+    ],
+    "og": true
+  },
+  "projects/ballroommarco": {
+    "width": 1000,
+    "height": 560,
+    "widths": [
+      480,
+      720,
+      960,
+      1000
+    ],
+    "og": true
+  },
+  "projects/belmontmactan": {
+    "width": 768,
+    "height": 512,
+    "widths": [
+      480,
+      720,
+      768
+    ],
+    "og": true
+  },
+  "projects/christianbible": {
+    "width": 1224,
+    "height": 765,
+    "widths": [
+      480,
+      720,
+      960,
+      1224
+    ],
+    "og": true
+  },
+  "projects/crimsonboracay": {
+    "width": 5960,
+    "height": 3979,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/crimsonmactan": {
+    "width": 1354,
+    "height": 640,
+    "widths": [
+      480,
+      720,
+      960,
+      1354
+    ],
+    "og": true
+  },
+  "projects/dusit": {
+    "width": 900,
+    "height": 700,
+    "widths": [
+      480,
+      720,
+      900
+    ],
+    "og": true
+  },
+  "projects/dusitprincess": {
+    "width": 1280,
+    "height": 720,
+    "widths": [
+      480,
+      720,
+      960,
+      1280
+    ],
+    "og": true
+  },
+  "projects/edsashangcenter": {
+    "width": 796,
+    "height": 580,
+    "widths": [
+      480,
+      720,
+      796
+    ],
+    "og": true
+  },
+  "projects/eslgarden": {
+    "width": 1920,
+    "height": 940,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/etontower": {
+    "width": 540,
+    "height": 360,
+    "widths": [
+      480,
+      540
+    ],
+    "og": true
+  },
+  "projects/fourpoints": {
+    "width": 4000,
+    "height": 2670,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/fullgospel": {
+    "width": 680,
+    "height": 510,
+    "widths": [
+      480,
+      680
+    ],
+    "og": true
+  },
+  "projects/grandhyatt": {
+    "width": 1800,
+    "height": 1103,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/grandhyattrooftop": {
+    "width": 2560,
+    "height": 1920,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/hilton": {
+    "width": 1920,
+    "height": 720,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/mactanworld": {
+    "width": 768,
+    "height": 402,
+    "widths": [
+      480,
+      720,
+      768
+    ],
+    "og": true
+  },
+  "projects/makatishang": {
+    "width": 382,
+    "height": 510,
+    "widths": [
+      382
+    ],
+    "og": true
+  },
+  "projects/metrobankcenter": {
+    "width": 960,
+    "height": 720,
+    "widths": [
+      480,
+      720,
+      960
+    ],
+    "og": true
+  },
+  "projects/metrobankcentergrandhyatt": {
+    "width": 500,
+    "height": 650,
+    "widths": [
+      480,
+      500
+    ],
+    "og": true
+  },
+  "projects/okura": {
+    "width": 1920,
+    "height": 1080,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/pasigcatholic": {
+    "width": 2464,
+    "height": 1632,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/philamlife": {
+    "width": 960,
+    "height": 1280,
+    "widths": [
+      480,
+      720,
+      960
+    ],
+    "og": true
+  },
+  "projects/questhotelclark": {
+    "width": 1024,
+    "height": 532,
+    "widths": [
+      480,
+      720,
+      960,
+      1024
+    ],
+    "og": true
+  },
+  "projects/rockwellperformingarts": {
+    "width": 768,
+    "height": 432,
+    "widths": [
+      480,
+      720,
+      768
+    ],
+    "og": true
+  },
+  "projects/savoyboracay": {
+    "width": 636,
+    "height": 600,
+    "widths": [
+      480,
+      636
+    ],
+    "og": true
+  },
+  "projects/savoyhotelbayshore": {
+    "width": 3070,
+    "height": 4604,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/savoymactan": {
+    "width": 970,
+    "height": 546,
+    "widths": [
+      480,
+      720,
+      960,
+      970
+    ],
+    "og": true
+  },
+  "projects/savoynewport": {
+    "width": 565,
+    "height": 563,
+    "widths": [
+      480,
+      565
+    ],
+    "og": true
+  },
+  "projects/sedaarca": {
+    "width": 1920,
+    "height": 1178,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/sedahotel": {
+    "width": 766,
+    "height": 575,
+    "widths": [
+      480,
+      720,
+      766
+    ],
+    "og": true
+  },
+  "projects/sedamakati": {
+    "width": 2000,
+    "height": 1500,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/shangmactan": {
+    "width": 1200,
+    "height": 848,
+    "widths": [
+      480,
+      720,
+      960,
+      1200
+    ],
+    "og": true
+  },
+  "projects/shangrilaplazachapel": {
+    "width": 4608,
+    "height": 3456,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/sheraton": {
+    "width": 1875,
+    "height": 1191,
+    "widths": [
+      480,
+      720,
+      960,
+      1600
+    ],
+    "og": true
+  },
+  "projects/thefifthrockwell": {
+    "width": 750,
+    "height": 500,
+    "widths": [
+      480,
+      720,
+      750
+    ],
+    "og": true
+  },
+  "projects/widustower3": {
+    "width": 1024,
+    "height": 576,
+    "widths": [
+      480,
+      720,
+      960,
+      1024
+    ],
+    "og": true
+  },
+  "projects/winford": {
+    "width": 925,
+    "height": 670,
+    "widths": [
+      480,
+      720,
+      925
+    ],
+    "og": true
+  },
+  "disciplines/acoustics": {
+    "width": 5168,
+    "height": 3448,
+    "widths": [
+      640,
+      1280,
+      1920
+    ],
+    "og": true
+  },
+  "disciplines/audiovisual": {
+    "width": 6324,
+    "height": 4216,
+    "widths": [
+      640,
+      1280,
+      1920
+    ],
+    "og": true
+  },
+  "disciplines/guest-room-management": {
+    "width": 2400,
+    "height": 1916,
+    "widths": [
+      640,
+      1280,
+      1920
+    ],
+    "og": true
+  },
+  "disciplines/information-technology": {
+    "width": 5568,
+    "height": 3712,
+    "widths": [
+      640,
+      1280,
+      1920
+    ],
+    "og": true
+  },
+  "disciplines/iot-smart-buildings": {
+    "width": 3840,
+    "height": 2160,
+    "widths": [
+      640,
+      1280,
+      1920
+    ],
+    "og": true
+  },
+  "disciplines/security": {
+    "width": 8256,
+    "height": 5504,
+    "widths": [
+      640,
+      1280,
+      1920
+    ],
+    "og": true
+  },
+  "team/emman": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/hadjie": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/hector": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/john": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/mark": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/pazf": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/pazj": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/primicias": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/ramirez": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/randel": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/shem3": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "team/spark": {
+    "width": 3153,
+    "height": 3153,
+    "widths": [
+      240,
+      480
+    ]
+  },
+  "partners/ayala": {
+    "width": 4213,
+    "height": 900,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "partners/dmci": {
+    "width": 2057,
+    "height": 377,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "partners/filinvest": {
+    "width": 2257,
+    "height": 388,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "partners/megaworld": {
+    "width": 2271,
+    "height": 421,
+    "widths": [
+      320,
+      640
+    ]
+  },
+  "brand/ihd-mark": {
+    "width": 140,
+    "height": 64,
+    "widths": []
+  }
+}

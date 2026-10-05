@@ -1,77 +1,25 @@
 <!doctype html>
-<html lang="en" class="bg-primary">
+<html lang="en-PH">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Primary Meta Tags -->
-    <title>IHD Philippines Ltd. Inc. | Technology Consultancy</title>
-    <meta name="title" content="IHD Philippines Ltd. Inc. | Technology Consultancy" />
-    <meta name="description" content="Trusted partner for smart, integrated building solutions. Expert consultancy for acoustics, AV systems, security, IoT, and building management systems across enterprise environments." />
-    <meta name="keywords" content="technology consultancy, smart buildings, building automation, acoustics, audio visual, security systems, IoT, BMS, EPMS, ELV systems, Philippines" />
-    <meta name="author" content="IHD Philippines Ltd. Inc." />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://www.ihd-mnl.com/" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.ihd-mnl.com/" />
-    <meta property="og:title" content="IHD Philippines Ltd. Inc. | Technology Consultancy" />
-    <meta property="og:description" content="Trusted partner for smart, integrated building solutions. Expert consultancy for acoustics, AV systems, security, IoT, and building management systems." />
-    <meta property="og:image" content="https://www.ihd-mnl.com/logo.png" />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://www.ihd-mnl.com/" />
-    <meta property="twitter:title" content="IHD Philippines Ltd. Inc. | Technology Consultancy" />
-    <meta property="twitter:description" content="Trusted partner for smart, integrated building solutions. Expert consultancy for acoustics, AV systems, security, IoT, and building management systems." />
-    <meta property="twitter:image" content="https://www.ihd-mnl.com/logo.png" />
-    
-    <!-- Structured Data / Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "ProfessionalService",
-      "name": "IHD Philippines Ltd. Inc.",
-      "description": "Technology consultancy specializing in integrated building solutions",
-      "url": "https://www.ihd-mnl.com",
-      "logo": "https://www.ihd-mnl.com/logo.png",
-      "image": "https://www.ihd-mnl.com/logo.png",
-      "telephone": "+63-000-000-0000",
-      "email": "design@ihd-mnl.com",
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "PH"
-      },
-      "sameAs": [],
-      "priceRange": "$$",
-      "areaServed": {
-        "@type": "Country",
-        "name": "Philippines"
-      },
-      "serviceType": ["Technology Consultancy", "Building Automation", "Smart Building Solutions", "Acoustics", "Audio-Visual Systems", "Security Systems", "IoT", "Building Management Systems"]
-    }
+    <meta name="theme-color" content="#0c0e12" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!--font-preload-->
+    <script>
+      // Scroll-reveal hides content only when JS runs; if the app never hydrates, show everything.
+      document.documentElement.classList.add('js');
+      setTimeout(function () {
+        if (!window.__ihdHydrated) document.documentElement.classList.remove('js');
+      }, 4000);
     </script>
-    
-    <!-- SPA GitHub Pages Fix -->
-    <script type="text/javascript">
-      // Single Page Apps for GitHub Pages
-      // https://github.com/rafgraph/spa-github-pages
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded + l.hash
-          );
-        }
-      }(window.location))
-    </script>
+    <!--app-head-->
   </head>
-  <body class="bg-primary text-white">
-    <div id="root"></div>
+  <body>
+    <div id="root"><!--app-html--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,243 +1,143 @@
-import { useState, useEffect, FormEvent, useRef } from 'react';
-import emailjs from '@emailjs/browser';
-import ReCAPTCHA from 'react-google-recaptcha';
-import Reveal from '../components/Reveal';
-import SkeletonLoader from '../components/SkeletonLoader';
+import { Link } from 'react-router-dom';
+import InquiryForm from '../components/InquiryForm';
+import { PageHero } from '../components/ui';
+import { disciplines } from '../data/disciplines';
+import { breadcrumbs, graph, webPage } from '../lib/schema';
+import { Seo } from '../lib/seo';
+import { SITE } from '../lib/site';
 
-const Contact = () => {
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
-  const COOLDOWN_KEY = 'contact_form_cooldown';
-  const COOLDOWN_DURATION = 60000; 
+const TITLE = 'Contact IHD Philippines | Acoustic, AV & Technology Consultancy';
+const DESCRIPTION =
+  'Request technical advisory from IHD Philippines for acoustics, audiovisual, security, IT, IoT or GRMS. Call +63 917 863 4060 or email design@ihd-mnl.com.';
+const PATH = '/contact';
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
+const briefChecklist = [
+  'Facility type — hotel, venue, church, school, office or residential',
+  'Location and approximate size of the spaces involved',
+  'Project stage — concept, design development, construction or renovation',
+  'Disciplines you need, or the problem you are trying to solve',
+  'Key dates such as design submissions, tender or opening'
+];
 
-  // Email validation regex
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  };
+const nextSteps = [
+  { title: 'Review', detail: 'Your brief is routed to the relevant discipline lead.' },
+  { title: 'Respond', detail: 'We reply within one business day with questions or next steps.' },
+  { title: 'Discuss', detail: 'We arrange a conversation to understand requirements and scope.' }
+];
 
-  // Check cooldown
-  const checkCooldown = (): boolean => {
-    const lastSubmit = localStorage.getItem(COOLDOWN_KEY);
-    if (lastSubmit) {
-      const timeSinceLastSubmit = Date.now() - parseInt(lastSubmit);
-      if (timeSinceLastSubmit < COOLDOWN_DURATION) {
-        const secondsRemaining = Math.ceil((COOLDOWN_DURATION - timeSinceLastSubmit) / 1000);
-        setStatusMessage({ 
-          type: 'error', 
-          text: `Please wait ${secondsRemaining} seconds before sending another message.` 
-        });
-        return false;
-      }
-    }
-    return true;
-  };
+const Contact = () => (
+  <>
+    <Seo
+      title={TITLE}
+      description={DESCRIPTION}
+      path={PATH}
+      jsonLd={graph(
+        webPage('ContactPage', PATH, TITLE, DESCRIPTION),
+        breadcrumbs([
+          { name: 'Home', path: '/' },
+          { name: 'Contact', path: PATH }
+        ])
+      )}
+    />
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setStatusMessage(null);
+    <PageHero
+      eyebrow="Engagement Desk"
+      trail={[
+        { name: 'Home', path: '/' },
+        { name: 'Contact', path: PATH }
+      ]}
+      title="Contact IHD for engineering and technology advisory"
+      lead="Whether it is a flagship hotel, a performance venue, a campus expansion or a resilient control center, tell us about your project. We respond within one business day."
+    />
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const email = formData.get('user_email') as string;
-    const message = formData.get('message') as string;
-    const name = formData.get('user_name') as string;
-
-    // Validation 1: Check if name is provided
-    if (!name || name.trim().length < 2) {
-      setStatusMessage({ type: 'error', text: 'Please enter a valid name (at least 2 characters).' });
-      return;
-    }
-
-    // Validation 2: Check if email is legitimate
-    if (!email || !validateEmail(email)) {
-      setStatusMessage({ type: 'error', text: 'Please enter a valid email address (e.g., user@example.com).' });
-      return;
-    }
-
-    // Validation 3: Check message length (minimum 10 characters)
-    if (!message || message.trim().length < 10) {
-      setStatusMessage({ type: 'error', text: 'Message must be at least 10 characters long.' });
-      return;
-    }
-
-    // Validation 4: Check cooldown
-    if (!checkCooldown()) {
-      return;
-    }
-
-    // Validation 5: Check reCAPTCHA
-    if (!captchaToken) {
-      setStatusMessage({ type: 'error', text: 'Please complete the reCAPTCHA verification.' });
-      return;
-    }
-
-    setSending(true);
-    
-    try {
-      // EmailJS
-      await emailjs.sendForm(
-        'service_7p3avvw', 
-        'template_h05bgmn', 
-        form,
-        'RfGoFDS_XhqzbbNEh'   
-      );
-      
-      // Set cooldown timestamp
-      localStorage.setItem(COOLDOWN_KEY, Date.now().toString());
-      
-      setStatusMessage({ type: 'success', text: 'Message sent successfully! We\'ll get back to you soon.' });
-      form.reset();
-      recaptchaRef.current?.reset();
-      setCaptchaToken(null);
-    } catch (error) {
-      console.error('Email send error:', error);
-      setStatusMessage({ type: 'error', text: 'Failed to send message. Please try again or email us directly at design@ihd-mnl.com' });
-    } finally {
-      setSending(false);
-    }
-  };
-
-  if (loading) return <SkeletonLoader />;
-
-  return (
-    <main className="min-h-screen bg-primary gradient-sheen pt-20">
-      <div className="mx-auto max-w-6xl space-y-12 px-6 py-16">
-        <Reveal>
-          <div className="space-y-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-gray-300">Contact us</p>
-            <h1 className="font-heading text-4xl md:text-5xl">Tell us about your next venue</h1>
-            <p className="max-w-3xl text-lg text-gray-300">
-              Share your vision—whether it is a flagship workplace, campus expansion, or a resilient control center. 
-              We're ready to help you bring your project to life.
-            </p>
+    <section className="py-16 md:py-20" aria-labelledby="form-heading">
+      <div className="container-site grid gap-12 lg:grid-cols-12 lg:grid-rows-[auto_1fr]">
+        <div className="lg:col-span-5 lg:row-start-1">
+          <div>
+            <h2 className="label mb-5 text-ink-secondary">Direct contact</h2>
+            <dl className="divide-y divide-white/10 border-y border-white/10">
+              <div className="py-5">
+                <dt className="label mb-1">Technical enquiries</dt>
+                <dd>
+                  <a href={`mailto:${SITE.email}`} className="font-display text-xl text-ink transition-colors hover:text-signal">
+                    {SITE.email}
+                  </a>
+                </dd>
+              </div>
+              <div className="py-5">
+                <dt className="label mb-1">Direct line</dt>
+                <dd>
+                  <a href={`tel:${SITE.phoneE164}`} className="font-display text-xl text-ink transition-colors hover:text-signal">
+                    {SITE.phoneDisplay}
+                  </a>
+                </dd>
+              </div>
+              <div className="py-5">
+                <dt className="label mb-1">Office hours</dt>
+                <dd className="text-sm text-ink-body">{SITE.hours}</dd>
+              </div>
+            </dl>
           </div>
-        </Reveal>
+        </div>
 
-        <Reveal delay={140}>
-          <div className="section-card grid gap-4 md:gap-8 p-6 md:p-8 md:grid-cols-2">
-            <div className="space-y-6">
-              <div>
-                <h2 className="font-heading text-2xl mb-4">Get in touch</h2>
-                <p className="text-gray-300">
-                  We respond within one business day and look forward to discussing your requirements.
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-400">Phone</p>
-                  <p className="font-heading text-lg">+63 (917) 863-4060</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Email</p>
-                  <p className="font-heading text-lg">design@ihd-mnl.com</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400">Office Hours</p>
-                  <p className="text-gray-300">Monday - Friday, 8:30 AM - 5:30 PM PHT</p>
-                </div>
-              </div>
-            </div>
-
-            <form className="grid gap-4 pr-2" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="name" className="block text-sm text-gray-300 mb-2">
-                  Name *
-                </label>
-                <input
-                  id="name"
-                  className="w-full rounded-xl border border-secondary/70 bg-primary/70 px-4 py-3 text-sm text-white focus:border-accent focus:outline-none"
-                  placeholder="Your name"
-                  name="user_name"
-                  type="text"
-                  required
-                  disabled={sending}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm text-gray-300 mb-2">
-                  Email *
-                </label>
-                <input
-                  id="email"
-                  className="w-full rounded-xl border border-secondary/70 bg-primary/70 px-4 py-3 text-sm text-white focus:border-accent focus:outline-none"
-                  placeholder="your.email@company.com"
-                  name="user_email"
-                  type="email"
-                  required
-                  disabled={sending}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="company" className="block text-sm text-gray-300 mb-2">
-                  Company
-                </label>
-                <input
-                  id="company"
-                  className="w-full rounded-xl border border-secondary/70 bg-primary/70 px-4 py-3 text-sm text-white focus:border-accent focus:outline-none"
-                  placeholder="Your company name"
-                  name="user_company"
-                  type="text"
-                  disabled={sending}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="message" className="block text-sm text-gray-300 mb-2">
-                  Project Vision *
-                </label>
-                <textarea
-                  id="message"
-                  className="w-full rounded-xl border border-secondary/70 bg-primary/70 px-4 py-3 text-sm text-white focus:border-accent focus:outline-none"
-                  placeholder="Tell us about your project requirements..."
-                  name="message"
-                  rows={6}
-                  required
-                  disabled={sending}
-                />
-              </div>
-
-              <ReCAPTCHA
-                ref={recaptchaRef}
-                sitekey="6LfzHjwsAAAAAGiDsWvaX4R963Mn8lA9NeWQaZeN"
-                onChange={(token) => setCaptchaToken(token)}
-                theme="dark"
-              />
-
-              {statusMessage && (
-                <div className={`rounded-xl px-4 py-3 text-sm ${
-                  statusMessage.type === 'success' 
-                    ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-                    : 'bg-red-500/20 text-red-300 border border-red-500/30'
-                }`}>
-                  {statusMessage.text}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={sending}
-                className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {sending ? 'Sending...' : 'Send Message'}
-              </button>
-            </form>
+        <div className="lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
+          <div className="rounded-sm border border-white/10 bg-surface p-5 sm:p-8 lg:sticky lg:top-28">
+            <h2 id="form-heading" className="mb-2 font-display text-2xl font-light text-ink">
+              Send a project brief
+            </h2>
+            <p className="mb-8 text-sm font-light text-ink-secondary">Fields marked * are required.</p>
+            <InquiryForm />
           </div>
-        </Reveal>
+        </div>
+
+        <div className="space-y-12 lg:col-span-5 lg:row-start-2">
+          <div>
+            <h2 className="label mb-5 text-ink-secondary">What to include in your brief</h2>
+            <ul className="space-y-3">
+              {briefChecklist.map((item) => (
+                <li key={item} className="flex gap-3 text-sm font-light leading-relaxed text-ink-secondary">
+                  <span className="mt-2 h-1 w-1 shrink-0 bg-signal" aria-hidden="true" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="label mb-5 text-ink-secondary">What happens next</h2>
+            <ol className="space-y-5">
+              {nextSteps.map((s, i) => (
+                <li key={s.title} className="border-l border-white/15 pl-5">
+                  <p className="font-mono text-xs text-signal">0{i + 1}</p>
+                  <h3 className="mt-1 text-base font-medium text-ink">{s.title}</h3>
+                  <p className="mt-1 text-[13px] font-light text-ink-secondary">{s.detail}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
       </div>
-    </main>
-  );
-};
+    </section>
+
+    <section className="border-t border-white/10 bg-canvas-alt py-16" aria-labelledby="explore-heading">
+      <div className="container-site">
+        <h2 id="explore-heading" className="label mb-6 text-ink-secondary">
+          Not sure which discipline you need?
+        </h2>
+        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+          {disciplines.map((d) => (
+            <li key={d.slug}>
+              <Link to={`/disciplines/${d.slug}`} className="block h-full bg-canvas p-6 transition-colors hover:bg-surface-raised">
+                <span className="font-mono text-[11px] uppercase tracking-widest text-ink-muted">{d.index}</span>
+                <span className="mt-2 block text-base font-medium text-ink">{d.name}</span>
+                <span className="mt-1 block text-[13px] font-light text-ink-secondary">{d.anchor}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  </>
+);
 
 export default Contact;

@@ -1,397 +1,311 @@
-import { useEffect, useMemo, useState, FormEvent, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import emailjs from '@emailjs/browser';
-import ReCAPTCHA from 'react-google-recaptcha';
+import { Link } from 'react-router-dom';
+import { ArrowRight, ArrowUpRight } from '../components/Icons';
+import { Img } from '../components/Img';
+import InquiryForm from '../components/InquiryForm';
 import Reveal from '../components/Reveal';
-import { partners } from '../data/content';
-import { projectImages } from '../data/projectImages';
+import { ProjectCard, SectionHeader } from '../components/ui';
+import { disciplines } from '../data/disciplines';
+import { lifecycle } from '../data/practice';
+import { getProject, projects, regions, sectors } from '../data/projects';
+import { developers, leadership, team } from '../data/team';
+import { graph, webPage } from '../lib/schema';
+import { Seo } from '../lib/seo';
+import { SITE } from '../lib/site';
 
-const Home = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [sending, setSending] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
-  const COOLDOWN_KEY = 'contact_form_cooldown_home';
-  const COOLDOWN_DURATION = 60000;
+const TITLE = 'IHD Philippines | Acoustics, AV & Building Technology Consultancy';
+const DESCRIPTION =
+  'Philippine technology consultancy for architectural acoustics, AV design, security, IT and ELV, IoT and GRMS — for hotels, venues and commercial buildings.';
 
-  // Random project selection
-  const randomProjects = useMemo(() => {
-    const shuffled = [...projectImages].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
-  }, []);
+const heroMosaic = [
+  getProject('rockwell-performing-arts-theater')!,
+  getProject('the-fifth-at-rockwell')!,
+  getProject('grand-hyatt-manila-rooftop')!
+];
+const featured = [
+  getProject('metrobank-center-grand-hyatt')!,
+  getProject('crimson-mactan')!,
+  getProject('shangri-la-plaza-chapel')!
+];
+const sectorCovers: Record<string, string> = {
+  hospitality: 'hotel-okura-manila',
+  worship: 'full-gospel-church-makati',
+  'culture-education': 'pasig-catholic-school-auditorium',
+  'commercial-residential': 'philam-life-building'
+};
 
-  // Email validation regex
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-  };
+const metrics = [
+  { value: String(projects.length), label: 'Portfolio projects', note: 'Hotels, venues, churches and towers' },
+  { value: String(disciplines.length).padStart(2, '0'), label: 'Engineering disciplines', note: 'Coordinated under one practice' },
+  { value: String(regions.length).padStart(2, '0'), label: 'Regions served', note: 'From Metro Manila to Cebu, Palawan and Davao' },
+  { value: String(leadership.length + team.length), label: 'Engineers & consultants', note: 'Led by multi-disciplinary section heads' }
+];
 
-  // Check cooldown
-  const checkCooldown = (): boolean => {
-    const lastSubmit = localStorage.getItem(COOLDOWN_KEY);
-    if (lastSubmit) {
-      const timeSinceLastSubmit = Date.now() - parseInt(lastSubmit);
-      if (timeSinceLastSubmit < COOLDOWN_DURATION) {
-        const secondsRemaining = Math.ceil((COOLDOWN_DURATION - timeSinceLastSubmit) / 1000);
-        setStatusMessage({ 
-          type: 'error', 
-          text: `Please wait ${secondsRemaining} seconds before sending another message.` 
-        });
-        return false;
-      }
-    }
-    return true;
-  };
+const Home = () => (
+  <>
+    <Seo
+      title={TITLE}
+      description={DESCRIPTION}
+      path="/"
+      jsonLd={graph(webPage('WebPage', '/', TITLE, DESCRIPTION))}
+    />
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setStatusMessage(null);
-
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-    const email = formData.get('user_email') as string;
-    const message = formData.get('message') as string;
-    const name = formData.get('user_name') as string;
-
-    // Validation 1: Check if name is provided
-    if (!name || name.trim().length < 2) {
-      setStatusMessage({ type: 'error', text: 'Please enter a valid name (at least 2 characters).' });
-      return;
-    }
-
-    // Validation 2: Check if email is legitimate
-    if (!email || !validateEmail(email)) {
-      setStatusMessage({ type: 'error', text: 'Please enter a valid email address.' });
-      return;
-    }
-
-    // Validation 3: Check message length (minimum 10 characters)
-    if (!message || message.trim().length < 10) {
-      setStatusMessage({ type: 'error', text: 'Message must be at least 10 characters long.' });
-      return;
-    }
-
-    // Validation 4: Check cooldown
-    if (!checkCooldown()) {
-      return;
-    }
-
-    // Validation 5: Check reCAPTCHA
-    if (!captchaToken) {
-      setStatusMessage({ type: 'error', text: 'Please complete the reCAPTCHA verification.' });
-      return;
-    }
-
-    setSending(true);
-    
-    try {
-      // EmailJS
-      await emailjs.sendForm(
-        'service_7p3avvw',  
-        'template_h05bgmn',
-        form,
-        'RfGoFDS_XhqzbbNEh'   
-      );
-      
-      // Set cooldown timestamp
-      localStorage.setItem(COOLDOWN_KEY, Date.now().toString());
-      
-      setStatusMessage({ type: 'success', text: 'Message sent! We\'ll get back to you soon.' });
-      form.reset();
-      recaptchaRef.current?.reset();
-      setCaptchaToken(null);
-    } catch (error) {
-      console.error('Email send error:', error);
-      setStatusMessage({ type: 'error', text: 'Failed to send. Please email us at design@ihd-mnl.com' });
-    } finally {
-      setSending(false);
-    }
-  };
-
-  useEffect(() => {
-    const state = location.state as { scrollTo?: string } | null;
-    const target = state?.scrollTo;
-    if (target) {
-      const timer = setTimeout(() => {
-        const section = document.getElementById(target);
-        section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 80);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [location.state]);
-
-  return (
-    <main className="gradient-sheen">
-      <section 
-        id="home" 
-        className="relative flex min-h-[80vh] w-full flex-col justify-center overflow-hidden pb-20 pt-28"
-      >
-        {/* Background Image with Opacity */}
-        <div 
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40"
-          style={{ backgroundImage: "url('/background/Home Background.png')" }}
-        />
-        
-        {/* Content */}
-        <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
-          <Reveal>
-            <p className="text-sm uppercase tracking-[0.3em] text-gray-300 mb-6">Integrated technology partner</p>
-          </Reveal>
-          <Reveal delay={120}>
-            <h1 className="font-heading text-4xl leading-tight md:text-5xl mb-8">
-              A trusted partner for smart, integrated building solutions.
+    {/* Hero */}
+    <section className="relative overflow-hidden border-b border-white/10 pb-20 pt-16 md:pb-24 md:pt-24">
+      <div className="container-site">
+        <div className="grid gap-14 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-7 lg:pr-6">
+            <p className="eyebrow-muted mb-6 flex items-center gap-2.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden="true" />
+              Technology & Engineering Consultancy · Philippines
+            </p>
+            <h1 className="font-display text-4xl font-light leading-[1.1] tracking-tight text-ink sm:text-5xl lg:text-[3.6rem]">
+              Architectural acoustics, audiovisual and intelligent building systems — engineered as one.
             </h1>
-          </Reveal>
-          <Reveal delay={240}>
-            <p className="max-w-2xl text-lg text-gray-300 mb-10">
-              Our mission is to transform the ambitions and visions of our clients through innovative, integrated technology
-              solutions—delivering expert and hands-on consultancy for technology systems.
+            <p className="mt-7 max-w-2xl text-base font-light leading-relaxed text-ink-secondary md:text-lg">
+              IHD Philippines is a technology consultancy for hotels, performance venues, worship spaces and commercial
+              buildings. We design acoustics, AV, security, IT and ELV infrastructure, IoT and guest room systems — from
+              discovery to commissioning.
             </p>
-          </Reveal>
-          <Reveal delay={360}>
-          <div className="flex flex-wrap items-center gap-4">
-  <button
-    onClick={() => navigate('/projects')}
-    className="rounded-full border-2 border-secondary/70 bg-transparent px-6 py-3 text-sm font-semibold text-white transition hover:border-accent hover:text-accent"
-  >
-    Explore projects
-  </button>
-  <button
-    onClick={() => navigate('/services')}
-    className="rounded-full border-2 border-secondary/70 bg-transparent px-6 py-3 text-sm font-semibold text-white transition hover:border-accent hover:text-accent"
-  >
-    View services
-  </button>
-</div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section id="about" className="bg-secondary/30">
-        <div className="mx-auto max-w-6xl space-y-10 px-6 py-16">
-          <Reveal>
-            <div className="flex flex-col gap-2">
-              <p className="text-sm uppercase tracking-[0.3em] text-gray-300">About us</p>
-              <h2 className="font-heading text-3xl">Building the future together</h2>
-              <p className="max-w-3xl text-gray-300">
-                We are engineers, designers, and consultants who bridge strategy with implementation. From smart building
-                systems to converged networks, we orchestrate solutions that keep environments intelligent, efficient, and secure.
-              </p>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link to="/projects" className="btn-primary">
+                View the project portfolio
+                <ArrowUpRight />
+              </Link>
+              <Link to="/disciplines" className="btn-ghost">
+                Engineering disciplines
+              </Link>
             </div>
-          </Reveal>
-          <Reveal delay={140}>
-            <div className="section-card flex flex-col items-start gap-4 p-8 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h3 className="font-heading text-2xl">Meet our team</h3>
-                <p className="max-w-xl text-gray-300">
-                  Discover the experts behind our innovative solutions and learn more about our mission.
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/about')}
-                className="rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-glow transition hover:shadow-[0_0_0_10px_rgba(123,5,186,0.25)]"
-              >
-                About Us
-              </button>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section id="services" className="mx-auto max-w-6xl space-y-8 px-6 py-16">
-        <Reveal>
-          <div className="flex flex-col gap-2">
-            <p className="text-sm uppercase tracking-[0.3em] text-gray-300">Services</p>
-            <h2 className="font-heading text-3xl">From discovery to deployment.</h2>
-            <p className="max-w-2xl text-gray-300">
-              Roadmaps, architecture, integration oversight, and lifecycle support. Explore how we align technology with the way
-              your people work and your spaces perform.
-            </p>
           </div>
-        </Reveal>
-        <Reveal delay={140}>
-          <div className="section-card flex flex-col items-start gap-4 p-8 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h3 className="font-heading text-2xl">Discover our service catalog</h3>
-              <p className="max-w-xl text-gray-300">
-                The dedicated services page will outline delivery models, partner ecosystems, and timelines. Visit to learn more.
-              </p>
-            </div>
-            <button
-              onClick={() => navigate('/services')}
-              className="rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-glow transition hover:shadow-[0_0_0_10px_rgba(123,5,186,0.25)]"
-            >
-              Go to services page
-            </button>
-          </div>
-        </Reveal>
-      </section>
 
-      <section id="projects" className="bg-secondary/30">
-        <div className="mx-auto max-w-6xl space-y-8 px-6 py-16">
-          <Reveal>
-            <div className="flex flex-col gap-2">
-              <p className="text-sm uppercase tracking-[0.3em] text-gray-300">Projects</p>
-              <h2 className="font-heading text-3xl">Selected works</h2>
-              <p className="max-w-2xl text-gray-300">
-                Three highlights for now—discover all fourteen programs on the projects page.
-              </p>
-            </div>
-          </Reveal>
-          <div className="grid gap-6 md:grid-cols-3">
-            {randomProjects.map((project, index) => (
-              <Reveal key={project.slug} delay={index * 80}>
-                <button
-                  onClick={() => navigate(`/projects/${project.slug}`)}
-                  className="section-card group flex h-full w-full flex-col gap-4 p-6 text-left transition-all hover:border-accent/50 hover:shadow-[0_10px_50px_rgba(123,5,186,0.3)]"
+          <div className="lg:col-span-5">
+            <div className="grid h-full grid-cols-2 grid-rows-[1fr_auto] gap-3">
+              {heroMosaic.map((p, i) => (
+                <Link
+                  key={p.slug}
+                  to={`/projects/${p.slug}`}
+                  className={`group relative overflow-hidden rounded-sm border border-white/10 bg-surface-raised ${
+                    i === 0 ? 'col-span-2 aspect-[16/9] lg:aspect-auto lg:min-h-[260px]' : 'aspect-[4/3]'
+                  }`}
                 >
-                  <div className="relative h-36 w-full overflow-hidden rounded-2xl">
-                    <img 
-                      src={project.image} 
-                      alt={project.name}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm text-accent">{project.types[0]}</div>
-                    <h3 className="font-heading text-xl group-hover:text-accent transition-colors">{project.name}</h3>
-                    <p className="text-gray-300 text-sm">{project.location}</p>
-                  </div>
-                  <div className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-accent">
-                    View
-                    <span className="transition-transform group-hover:translate-x-1" aria-hidden>→</span>
-                  </div>
-                </button>
-              </Reveal>
-            ))}
-          </div>
-          <Reveal delay={240}>
-            <div className="flex items-center justify-end">
-              <button
-                onClick={() => navigate('/projects')}
-                className="group inline-flex items-center gap-2 rounded-full border border-secondary/70 px-5 py-3 text-sm font-semibold text-gray-200 transition hover:border-accent hover:text-white"
-              >
-                See all projects
-                <span className="text-accent transition group-hover:translate-x-1">➜</span>
-              </button>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section id="partners" className="space-y-6 py-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <Reveal>
-            <div className="flex flex-col gap-2">
-              <p className="text-sm uppercase tracking-[0.3em] text-gray-300">Partners</p>
-              <h2 className="font-heading text-3xl">Companies we've worked with</h2>
-              <p className="text-gray-300">Trusted partners and clients who have collaborated with us on innovative projects.</p>
-            </div>
-          </Reveal>
-        </div>
-        <Reveal delay={160}>
-          <div className="w-full overflow-hidden py-6">
-            <div className="flex items-center gap-8 marquee-track whitespace-nowrap">
-              {[...partners, ...partners, ...partners, ...partners].map((partner, index) => (
-                <div
-                  key={`${partner.name}-${index}`}
-                  className="flex h-20 w-48 flex-shrink-0 items-center justify-center p-4"
-                >
-                  <img 
-                    src={partner.image} 
-                    alt={partner.name}
-                    className="h-full w-full object-contain mix-blend-lighten"
+                  <Img
+                    src={p.image}
+                    alt={p.imageAlt}
+                    priority={i === 0}
+                    sizes={i === 0 ? '(min-width: 1024px) 40vw, 100vw' : '(min-width: 1024px) 20vw, 50vw'}
+                    className="img-treatment absolute inset-0 h-full w-full object-cover"
                   />
-                </div>
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-10 font-mono text-[10.5px] uppercase tracking-[0.14em] text-white">
+                    {p.name}
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
-        </Reveal>
-      </section>
+        </div>
 
-      <section id="contact" className="bg-secondary/30">
-        <div className="mx-auto max-w-6xl space-y-8 px-6 py-16">
-          <Reveal>
-          <div className="flex flex-col gap-2">
-            <p className="text-sm uppercase tracking-[0.3em] text-gray-300">Contact us</p>
-            <h2 className="font-heading text-3xl">Tell us about your next venue.</h2>
-            <p className="max-w-2xl text-gray-300">
-              Share your vision—whether it is a flagship workplace, campus expansion, or a resilient control center.
-            </p>
+        <dl className="mt-20 grid grid-cols-2 gap-x-6 gap-y-10 border-t border-white/10 pt-10 md:grid-cols-4">
+          {metrics.map((m) => (
+            <div key={m.label} className="flex flex-col gap-1.5">
+              <dt className="order-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-secondary">{m.label}</dt>
+              <dd className="order-1 font-mono text-3xl font-light text-ink md:text-4xl">{m.value}</dd>
+              <dd className="order-3 text-[12px] text-ink-muted">{m.note}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+
+    {/* Disciplines */}
+    <section className="border-b border-white/10 bg-canvas-alt py-20 md:py-24" aria-labelledby="disciplines-heading">
+      <div className="container-site">
+        <SectionHeader
+          id="disciplines-heading"
+          eyebrow="Practice Scope"
+          title="Six engineering disciplines, one coordinated design"
+          lead="Most building technology now shares the same network, ceiling space and operating team. We design these systems together so they are coordinated before construction — not reconciled after it."
+          action={
+            <Link to="/disciplines" className="link-arrow">
+              All disciplines <ArrowRight />
+            </Link>
+          }
+        />
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 md:grid-cols-2 lg:grid-cols-3">
+          {disciplines.map((d) => (
+            <article key={d.slug} className="group relative flex flex-col justify-between gap-8 bg-canvas p-8 transition-colors hover:bg-surface-raised">
+              <div className="space-y-4">
+                <p className="font-mono text-[11px] uppercase tracking-widest text-ink-muted">
+                  {d.index} / {d.label}
+                </p>
+                <h3 className="text-lg font-medium text-ink">
+                  <Link to={`/disciplines/${d.slug}`} className="after:absolute after:inset-0">
+                    {d.name}
+                  </Link>
+                </h3>
+                <p className="text-sm font-light leading-relaxed text-ink-secondary">{d.summary}</p>
+              </div>
+              <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-signal">
+                {d.anchor}
+                <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+              </span>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* Selected projects */}
+    <section className="border-b border-white/10 py-20 md:py-24" aria-labelledby="projects-heading">
+      <div className="container-site">
+        <SectionHeader
+          id="projects-heading"
+          eyebrow="Project Index"
+          title="Selected commissions"
+          lead="A landmark tower in Bonifacio Global City, a Cebu beach resort engineered across four disciplines, and a chapel set within one of Ortigas’ busiest malls."
+          action={
+            <Link to="/projects" className="link-arrow">
+              All {projects.length} projects <ArrowRight />
+            </Link>
+          }
+        />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {featured.map((p, i) => (
+            <Reveal key={p.slug} delay={i * 80} className="h-full">
+              <ProjectCard project={p} />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* Sectors */}
+    <section className="border-b border-white/10 bg-canvas-alt py-20 md:py-24" aria-labelledby="sectors-heading">
+      <div className="container-site">
+        <SectionHeader
+          id="sectors-heading"
+          eyebrow="Sectors"
+          title="Where our engineering is at work"
+          lead="Our portfolio is concentrated in environments where sound, image, connectivity and security directly shape the experience of guests, congregations and audiences."
+        />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {sectors.map((s, i) => {
+            const items = projects.filter((p) => p.sector === s.slug);
+            const cover = getProject(sectorCovers[s.slug]) ?? items[0];
+            return (
+              <Reveal key={s.slug} delay={i * 60}>
+                <Link to={`/sectors/${s.slug}`} className="group block">
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-sm border border-white/10 bg-surface-raised">
+                    <Img src={cover.image} alt={cover.imageAlt} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="img-treatment h-full w-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 via-45% to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-5">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/75">
+                        {String(items.length).padStart(2, '0')} projects
+                      </p>
+                      <h3 className="mt-1.5 font-display text-xl font-normal text-white">{s.name}</h3>
+                      <p className="mt-2 text-[13px] leading-relaxed text-white/70">{s.description}</p>
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    {/* Lifecycle */}
+    <section className="border-b border-white/10 py-20 md:py-24" aria-labelledby="lifecycle-heading">
+      <div className="container-site">
+        <SectionHeader
+          id="lifecycle-heading"
+          eyebrow="Engagement Model"
+          title="From discovery to commissioning"
+          lead="Every engagement follows the same disciplined path, so design intent carries through construction, installation and handover."
+          action={
+            <Link to="/about#approach" className="link-arrow">
+              Our approach <ArrowRight />
+            </Link>
+          }
+        />
+        <ol className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {lifecycle.map((step, i) => (
+            <li key={step.title}>
+              <Reveal delay={i * 60}>
+                <div className="space-y-3 border-l border-white/15 p-6">
+                  <p className="font-mono text-xs text-signal">0{i + 1}</p>
+                  <h3 className="text-base font-medium text-ink">{step.title}</h3>
+                  <p className="text-[13px] font-light leading-relaxed text-ink-secondary">{step.detail}</p>
+                </div>
+              </Reveal>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    {/* Developers */}
+    <section className="border-b border-white/10 bg-canvas-alt py-20" aria-labelledby="developers-heading">
+      <div className="container-site">
+        <Reveal>
+          <div className="mx-auto mb-12 max-w-xl text-center">
+            <p className="eyebrow-muted mb-2">Developer Relationships</p>
+            <h2 id="developers-heading" className="font-display text-xl font-normal text-ink">
+              Property developers we have worked with
+            </h2>
           </div>
         </Reveal>
-        <Reveal delay={140}>
-          <div className="section-card grid gap-4 md:gap-6 p-6 md:p-8 md:grid-cols-2">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-300">Phone</p>
-                  <p className="font-heading text-lg">+63 (917) 863-4060</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-300">Email</p>
-                  <p className="font-heading text-lg">design@ihd-mnl.com</p>
-                </div>
-                <p className="text-sm text-gray-300">We respond within one business day.</p>
-              </div>
-              <form className="grid gap-4 pr-2" onSubmit={handleSubmit}>
-                <input
-                  className="w-full rounded-xl border border-secondary/70 bg-primary/70 px-4 py-3 text-sm text-white focus:border-accent focus:outline-none"
-                  placeholder="Name"
-                  name="user_name"
-                  type="text"
-                  required
-                  disabled={sending}
-                />
-                <input
-                  className="w-full rounded-xl border border-secondary/70 bg-primary/70 px-4 py-3 text-sm text-white focus:border-accent focus:outline-none"
-                  placeholder="Email"
-                  name="user_email"
-                  type="email"
-                  required
-                  disabled={sending}
-                />
-                <textarea
-                  className="w-full rounded-xl border border-secondary/70 bg-primary/70 px-4 py-3 text-sm text-white focus:border-accent focus:outline-none"
-                  placeholder="Project vision"
-                  name="message"
-                  rows={4}
-                  required
-                  disabled={sending}
-                />
-                {/* Uncomment when you get your reCAPTCHA site key */}
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey="6LfzHjwsAAAAAGiDsWvaX4R963Mn8lA9NeWQaZeN"
-                  onChange={(token) => setCaptchaToken(token)}
-                  theme="dark"
-                />
+        <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-white/10 bg-white/10 md:grid-cols-4">
+          {developers.map((d) => (
+            <li key={d.name} className="flex h-28 items-center justify-center bg-canvas px-8">
+              <Img src={d.image} alt={`${d.name} logo`} sizes="200px" className="max-h-9 w-auto max-w-[160px] object-contain opacity-80" />
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 text-center">
+          <Link to="/partners" className="link-arrow">
+            Our developer partners and project ecosystem <ArrowRight />
+          </Link>
+        </p>
+      </div>
+    </section>
 
-                {statusMessage && (
-                  <div className={`rounded-xl px-4 py-3 text-sm ${
-                    statusMessage.type === 'success' 
-                      ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-                      : 'bg-red-500/20 text-red-300 border border-red-500/30'
-                  }`}>
-                    {statusMessage.text}
-                  </div>
-                )}
-                <button
-                  type="submit"
-                  disabled={sending}
-                  className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {sending ? 'Sending...' : 'Send Message'}
-                </button>
-              </form>
+    {/* Inquiry */}
+    <section className="bg-canvas py-20 md:py-24" aria-labelledby="inquiry-heading">
+      <div className="container-site">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+          <Reveal className="lg:col-span-5">
+            <div className="space-y-6">
+              <p className="eyebrow">Engagement Desk</p>
+              <h2 id="inquiry-heading" className="font-display text-3xl font-light leading-tight text-ink">
+                Bring IHD into your project early
+              </h2>
+              <p className="prose-body">
+                Whether it is a hotel, a venue, a place of worship or a commercial tower, the earlier acoustics and
+                technology are considered, the less needs to be corrected later. Tell us about your project and the
+                relevant discipline lead will respond.
+              </p>
+              <dl className="space-y-4 border-t border-white/10 pt-6 font-mono text-xs">
+                <div>
+                  <dt className="mb-0.5 uppercase tracking-wider text-ink-muted">Technical enquiries</dt>
+                  <dd><a href={`mailto:${SITE.email}`} className="text-ink hover:text-signal">{SITE.email}</a></dd>
+                </div>
+                <div>
+                  <dt className="mb-0.5 uppercase tracking-wider text-ink-muted">Direct line</dt>
+                  <dd><a href={`tel:${SITE.phoneE164}`} className="text-ink hover:text-signal">{SITE.phoneDisplay}</a></dd>
+                </div>
+                <div>
+                  <dt className="mb-0.5 uppercase tracking-wider text-ink-muted">Response</dt>
+                  <dd className="text-ink">Within one business day</dd>
+                </div>
+              </dl>
             </div>
           </Reveal>
+          <div className="rounded-sm border border-white/10 bg-surface p-5 sm:p-8 lg:col-span-7">
+            <InquiryForm />
+          </div>
         </div>
-      </section>
-    </main>
-  );
-};
+      </div>
+    </section>
+  </>
+);
 
 export default Home;
