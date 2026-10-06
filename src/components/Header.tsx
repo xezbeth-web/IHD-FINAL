@@ -14,19 +14,49 @@ const Header = () => {
 
   useEffect(() => setOpen(false), [pathname]);
 
-  // Frosted once scrolled, hidden while scrolling down, back on any scroll up; the hairline
-  // along the bottom tracks reading progress through the page.
+  // Frosted once scrolled, hidden while scrolling down, back on a deliberate scroll up; the
+  // hairline along the bottom tracks reading progress through the page.
+  //
+  // Only upward movement the reader asked for counts: scroll-snap settling back onto a scene,
+  // trackpad jitter and programmatic smooth scrolls all move the page up a little without any
+  // intent to reach the nav, and used to pop the header in mid-read.
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
     let lastY = window.scrollY;
-    return onScrollFrame(() => {
+    let travel = 0; // distance moved in the current direction (+ down, - up)
+    let intentUp = false;
+    let touchY = 0;
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY) intentUp = e.deltaY < 0;
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0].clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const dy = e.touches[0].clientY - touchY;
+      if (Math.abs(dy) > 4) intentUp = dy > 0;
+      touchY = e.touches[0].clientY;
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (['ArrowUp', 'PageUp', 'Home'].includes(e.key) || (e.key === ' ' && e.shiftKey)) intentUp = true;
+      else if (['ArrowDown', 'PageDown', 'End', ' '].includes(e.key)) intentUp = false;
+    };
+    window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('keydown', onKey);
+
+    const unsubscribe = onScrollFrame(() => {
       const y = window.scrollY;
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const progress = max > 0 ? Math.min(1, y / max) : 0;
-      const hide = !openRef.current && y > 240 && y > lastY + 2;
-      const show = y < lastY - 2 || y <= 240;
+      const dy = y - lastY;
       lastY = y;
+      if (dy) travel = Math.sign(dy) === Math.sign(travel) ? travel + dy : dy;
+      const hide = !openRef.current && y > 240 && travel > 12;
+      const show = y <= 240 || (intentUp && travel < -48);
       return () => {
         header.toggleAttribute('data-scrolled', y > 24);
         if (hide) header.setAttribute('data-hidden', '');
@@ -34,6 +64,14 @@ const Header = () => {
         if (progressRef.current) progressRef.current.style.transform = 'scaleX(' + progress.toFixed(4) + ')';
       };
     });
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('keydown', onKey);
+    };
   }, []);
 
   useEffect(() => {
