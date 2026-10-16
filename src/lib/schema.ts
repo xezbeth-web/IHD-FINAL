@@ -16,6 +16,7 @@ export const organization = () => ({
   image: absoluteUrl(SITE.defaultOgImage),
   email: SITE.email,
   telephone: SITE.phoneE164,
+  sameAs: SITE.social.map((s) => s.url),
   address: { '@type': 'PostalAddress', addressCountry: 'PH' },
   areaServed: { '@type': 'Country', name: 'Philippines' },
   openingHoursSpecification: {

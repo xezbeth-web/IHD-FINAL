@@ -4,7 +4,8 @@ export const navItems = [
   { label: 'Disciplines', to: '/disciplines', index: '02' },
   { label: 'Portfolio', to: '/projects', index: '03' },
   { label: 'Partners', to: '/partners', index: '04' },
-  { label: 'Contact', to: '/contact', index: '05' }
+  { label: 'News', to: '/news', index: '05' },
+  { label: 'Contact', to: '/contact', index: '06' }
 ];
 
 /** Links that swap a page's content where the visitor is (e.g. the discipline switcher) pass

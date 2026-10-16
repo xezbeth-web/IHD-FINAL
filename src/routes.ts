@@ -12,6 +12,7 @@ export const prerenderRoutes = [
   ...sectors.map((s) => `/sectors/${s.slug}`),
   ...projects.map((p) => `/projects/${p.slug}`),
   '/partners',
+  '/news',
   '/contact'
 ];
 

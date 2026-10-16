@@ -81,6 +81,7 @@ const App = ({ pages }: { pages: Pages }) => {
                 <Route path="/projects/:slug" element={<pages.ProjectDetail />} />
                 <Route path="/sectors/:slug" element={<pages.Sector />} />
                 <Route path="/partners" element={<pages.Partners />} />
+                <Route path="/news" element={<pages.News />} />
                 <Route path="/contact" element={<pages.Contact />} />
                 {Object.entries(legacyRedirects).map(([from, to]) => (
                   <Route key={from} path={from} element={<Navigate to={to} replace />} />

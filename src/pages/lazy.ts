@@ -13,6 +13,7 @@ const loaders = {
   ProjectDetail: () => import('./ProjectDetail'),
   Sector: () => import('./Sector'),
   Partners: () => import('./Partners'),
+  News: () => import('./News'),
   Contact: () => import('./Contact')
 };
 
@@ -26,6 +27,7 @@ export const pages: Pages = {
   ProjectDetail: lazy(loaders.ProjectDetail),
   Sector: lazy(loaders.Sector),
   Partners: lazy(loaders.Partners),
+  News: lazy(loaders.News),
   Contact: lazy(loaders.Contact)
 };
 
@@ -47,8 +49,10 @@ export const preloadRoute = (path: string) => {
             ? loaders.Sector
             : first === 'partners'
               ? loaders.Partners
-              : first === 'contact'
-                ? loaders.Contact
-                : null;
+              : first === 'news'
+                ? loaders.News
+                : first === 'contact'
+                  ? loaders.Contact
+                  : null;
   return loader?.();
 };

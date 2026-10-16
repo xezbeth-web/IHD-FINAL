@@ -1,5 +1,6 @@
 import { scrollToOffset } from '../lib/scroll';
 import { SITE } from '../lib/site';
+import { SocialIcon } from './SocialIcons';
 
 /** Back to the top, landing focus on the page's heading for keyboard and screen-reader users. */
 const backToTop = () => {
@@ -32,6 +33,21 @@ const Footer = () => (
           {SITE.phoneDisplay}
         </a>
       </p>
+      <ul className="flex items-center gap-2 md:ml-auto md:mr-6">
+        {SITE.social.map((s) => (
+          <li key={s.name}>
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${SITE.name} on ${s.name}`}
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-ink-secondary transition-colors duration-300 hover:border-signal hover:text-signal"
+            >
+              <SocialIcon name={s.name} className="h-3 w-3" />
+            </a>
+          </li>
+        ))}
+      </ul>
       <button
         type="button"
         onClick={backToTop}

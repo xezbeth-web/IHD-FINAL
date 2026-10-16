@@ -3,11 +3,23 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+  # Sent by the n8n posting workflow after it publishes to Facebook, so /news updates right away.
+  repository_dispatch:
+    types: [ facebook-post ]
+  # Daily refresh (06:00 Manila) picks up posts made directly on Facebook.
+  schedule:
+    - cron: '0 22 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
+
+# A post and a code push landing together queue up rather than deploying over each other.
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -24,9 +36,31 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      # The last successful Facebook fetch. If the next fetch fails (expired token, Graph API
+      # outage), scripts/fetch-news.mjs keeps these and the site still builds.
+      - name: Restore cached news
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            src/data/news.json
+            public/news
+          key: news-${{ github.run_id }}
+          restore-keys: news-
+
       - name: Build
         run: npm run build
-        
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+
+      - name: Save news cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            src/data/news.json
+            public/news
+          key: news-${{ github.run_id }}-${{ github.run_attempt }}
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

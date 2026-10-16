@@ -7,6 +7,7 @@ import Contact from './pages/Contact';
 import DisciplineDetail from './pages/DisciplineDetail';
 import Disciplines from './pages/Disciplines';
 import Home from './pages/Home';
+import News from './pages/News';
 import NotFound from './pages/NotFound';
 import Partners from './pages/Partners';
 import ProjectDetail from './pages/ProjectDetail';
@@ -19,7 +20,7 @@ export { SITE } from './lib/site';
 
 /** Renders one URL to static HTML plus the <head> tags its <Seo> component declared. */
 // The prerender renders every page eagerly so each HTML file is complete.
-const pages = { Home, About, Disciplines, DisciplineDetail, Projects, ProjectDetail, Sector, Partners, Contact, NotFound };
+const pages = { Home, About, Disciplines, DisciplineDetail, Projects, ProjectDetail, Sector, Partners, News, Contact, NotFound };
 
 export const render = (url: string) => {
   let head: SeoProps | null = null;

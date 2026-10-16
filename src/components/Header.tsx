@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { navItems } from '../lib/nav';
 import { onScrollFrame } from '../lib/scroll';
 import { SITE } from '../lib/site';
+import { SocialIcon } from './SocialIcons';
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -194,6 +195,20 @@ const Header = () => {
             <a href={`tel:${SITE.phoneE164}`} className="block hover:text-ink">
               {SITE.phoneDisplay}
             </a>
+            <span className="flex gap-2 pt-5">
+              {SITE.social.map((s) => (
+                <a
+                  key={s.name}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${SITE.name} on ${s.name}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 hover:border-signal hover:text-signal"
+                >
+                  <SocialIcon name={s.name} />
+                </a>
+              ))}
+            </span>
           </li>
         </ul>
       </nav>

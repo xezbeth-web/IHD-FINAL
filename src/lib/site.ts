@@ -11,7 +11,15 @@ export const SITE = {
   hours: 'Monday – Friday, 8:30 AM – 5:30 PM (PHT)',
   responseTime: 'We respond within one business day.',
   defaultOgImage: '/images/og/default.jpg',
-  logo: '/images/brand/ihd-logo.png'
+  logo: '/images/brand/ihd-logo.png',
+  social: [
+    { name: 'Facebook', url: 'https://www.facebook.com/ihdmnl/' },
+    { name: 'Instagram', url: 'https://www.instagram.com/ihd_mnl/' },
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/company/ihd-ph/' }
+  ]
 } as const;
+
+export type SocialName = (typeof SITE.social)[number]['name'];
+export const socialUrl = (name: SocialName) => SITE.social.find((s) => s.name === name)!.url;
 
 export const absoluteUrl = (path: string) => (path.startsWith('http') ? path : `${SITE.url}${path === '/' ? '' : path}`);

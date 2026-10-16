@@ -45,6 +45,7 @@ const pageFor = (route) => {
   if (first === 'projects') return second ? 'ProjectDetail' : 'Projects';
   if (first === 'sectors') return 'Sector';
   if (first === 'partners') return 'Partners';
+  if (first === 'news') return 'News';
   if (first === 'contact') return 'Contact';
   return null;
 };

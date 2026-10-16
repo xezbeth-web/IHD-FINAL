@@ -4,15 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir .ssr && node scripts/prerender.mjs && node scripts/check-site.mjs",
+    "dev": "node scripts/fetch-news.mjs && vite",
+    "build": "node scripts/fetch-news.mjs && tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir .ssr && node scripts/prerender.mjs && node scripts/check-site.mjs",
     "preview": "vite preview",
     "lint": "echo \"Lint not configured\"",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "images": "node scripts/optimize-images.mjs",
     "icons": "node scripts/make-icons.mjs",
-    "check": "node scripts/check-site.mjs"
+    "check": "node scripts/check-site.mjs",
+    "news": "node scripts/fetch-news.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

@@ -11,6 +11,7 @@ export interface Pages {
   ProjectDetail: ComponentType;
   Sector: ComponentType;
   Partners: ComponentType;
+  News: ComponentType;
   Contact: ComponentType;
   NotFound: ComponentType;
 }
