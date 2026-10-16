@@ -17,7 +17,13 @@ export const organization = () => ({
   email: SITE.email,
   telephone: SITE.phoneE164,
   sameAs: SITE.social.map((s) => s.url),
-  address: { '@type': 'PostalAddress', addressCountry: 'PH' },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: `${SITE.address.street}, ${SITE.address.district}`,
+    addressLocality: SITE.address.city,
+    addressRegion: SITE.address.region,
+    addressCountry: 'PH'
+  },
   areaServed: { '@type': 'Country', name: 'Philippines' },
   openingHoursSpecification: {
     '@type': 'OpeningHoursSpecification',

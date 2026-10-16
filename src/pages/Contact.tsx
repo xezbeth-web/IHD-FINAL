@@ -5,7 +5,7 @@ import { PageHero, SectionHeader, delay } from '../components/ui';
 import { disciplines } from '../data/disciplines';
 import { breadcrumbs, graph, webPage } from '../lib/schema';
 import { Seo } from '../lib/seo';
-import { SITE } from '../lib/site';
+import { SITE, addressLines, mapUrl } from '../lib/site';
 
 const TITLE = 'Contact IHD Philippines | Acoustic, AV & Technology Consultancy';
 const DESCRIPTION =
@@ -71,6 +71,18 @@ const Contact = () => (
                 <dd>
                   <a href={`tel:${SITE.phoneE164}`} className="font-display text-xl text-ink transition-colors hover:text-signal">
                     {SITE.phoneDisplay}
+                  </a>
+                </dd>
+              </div>
+              <div className="py-5">
+                <dt className="label mb-1">Office</dt>
+                <dd>
+                  <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="text-sm leading-[1.7] text-ink-body transition-colors hover:text-signal">
+                    {addressLines.map((line) => (
+                      <span key={line} className="block">
+                        {line}
+                      </span>
+                    ))}
                   </a>
                 </dd>
               </div>

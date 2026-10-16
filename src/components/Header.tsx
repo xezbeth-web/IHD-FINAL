@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { navItems } from '../lib/nav';
 import { onScrollFrame } from '../lib/scroll';
-import { SITE } from '../lib/site';
+import { SITE, addressLines, mapUrl } from '../lib/site';
 import { SocialIcon } from './SocialIcons';
 
 const Header = () => {
@@ -194,6 +194,13 @@ const Header = () => {
             </a>
             <a href={`tel:${SITE.phoneE164}`} className="block hover:text-ink">
               {SITE.phoneDisplay}
+            </a>
+            <a href={mapUrl} target="_blank" rel="noopener noreferrer" className="block pt-3 leading-[1.7] hover:text-ink">
+              {addressLines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
             </a>
             <span className="flex gap-2 pt-5">
               {SITE.social.map((s) => (
