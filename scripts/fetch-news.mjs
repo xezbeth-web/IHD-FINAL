@@ -50,13 +50,32 @@ const keepExisting = (reason) => {
 
 const { FB_PAGE_ID: pageId, FB_PAGE_TOKEN: token } = process.env;
 
-const fetchPosts = async () => {
+const graph = async (pathAndQuery) => {
   // The token goes in a header, never the URL, so it can't leak into logs or error messages.
-  const url = `${GRAPH}/${encodeURIComponent(pageId)}/posts?fields=${encodeURIComponent(FIELDS)}&limit=${LIMIT * 2}`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) });
+  const res = await fetch(`${GRAPH}/${pathAndQuery}`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`Graph API ${res.status}: ${body.error?.message ?? 'unknown error'}`);
-  return body.data ?? [];
+  return body;
+};
+
+const fetchPosts = async () =>
+  (await graph(`${encodeURIComponent(pageId)}/posts?fields=${encodeURIComponent(FIELDS)}&limit=${LIMIT * 2}`)).data ?? [];
+
+/** When nothing is publishable, log which page the token reads and what it saw (all public). */
+const explainEmpty = async (raw) => {
+  try {
+    const page = await graph(`${encodeURIComponent(pageId)}?fields=name,username,link`);
+    console.log(`News: reading page "${page.name}" (${page.username ? `@${page.username}` : 'no username'}, ${page.link ?? 'no link'}).`);
+    for (const item of raw) {
+      console.log(`News:   skipped ${item.created_time}: ${item.story ?? (item.message ? 'has text' : 'no text')}, ${item.full_picture ? 'has picture' : 'no picture'}`);
+    }
+    for (const edge of ['published_posts', 'feed']) {
+      const { data = [] } = await graph(`${encodeURIComponent(pageId)}/${edge}?fields=message,story&limit=25`);
+      console.log(`News:   /${edge}: ${data.length} item(s), ${data.filter((d) => d.message).length} with text`);
+    }
+  } catch (error) {
+    console.log(`News: could not inspect the page (${error.message}).`);
+  }
 };
 
 /** Downloads a post's picture and writes WebP variants; returns the manifest entry or undefined. */
@@ -146,6 +165,7 @@ const run = async () => {
 
   fs.writeFileSync(DATA, JSON.stringify({ fetchedAt: new Date().toISOString(), posts }, null, 2) + '\n');
   console.log(`News: saved ${posts.length} post(s) from Facebook (${raw.length} returned, ${skipped} automatic or empty skipped).`);
+  if (!posts.length) await explainEmpty(raw);
 };
 
 await run();
