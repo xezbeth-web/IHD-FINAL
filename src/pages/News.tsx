@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from '../components/Icons';
 import Scene from '../components/Scene';
 import { SocialIcon } from '../components/SocialIcons';
@@ -57,8 +57,38 @@ const PostImage = ({ post, sizes, priority = false }: { post: NewsPost; sizes: s
       alt=""
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
-      className="absolute inset-0 h-full w-full object-cover grayscale-[35%] transition duration-[1200ms] ease-out group-hover:scale-[1.04] group-hover:grayscale-0"
+      // Posts are often designed graphics with text near the edges, so never crop them.
+      className="absolute inset-0 h-full w-full object-contain transition duration-[1200ms] ease-out group-hover:scale-[1.02]"
     />
+  );
+};
+
+/** Caption trimmed to a few lines, with a toggle when it runs longer. The full text stays in
+ *  the HTML either way, so it is still indexed and read by screen readers. */
+const ExpandableText = ({ text }: { text: string }) => {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (el && !expanded) setOverflows(el.scrollHeight > el.clientHeight + 1);
+  }, [text, expanded]);
+  return (
+    <div>
+      <p ref={ref} className={`whitespace-pre-line text-sm font-light leading-[1.75] text-ink-body md:text-[15px] ${expanded ? '' : 'line-clamp-[8]'}`}>
+        <RichText text={text} />
+      </p>
+      {(overflows || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-signal transition-colors hover:text-ink"
+        >
+          {expanded ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </div>
   );
 };
 
@@ -78,7 +108,7 @@ const PostDate = ({ post }: { post: NewsPost }) => (
   </time>
 );
 
-/** The newest post, shown in full. */
+/** The newest post: the picture uncropped beside the caption. */
 const FeaturedPost = ({ post }: { post: NewsPost }) => (
   <article
     className={`group grid overflow-hidden rounded-lg border border-white/10 bg-surface ${post.image ? 'lg:grid-cols-12' : ''}`}
@@ -86,12 +116,17 @@ const FeaturedPost = ({ post }: { post: NewsPost }) => (
     aria-labelledby={`post-${post.id}`}
   >
     {post.image && (
-      <div className="relative aspect-[4/3] overflow-hidden bg-surface-raised lg:col-span-7 lg:aspect-auto lg:min-h-[28rem]">
-        <PostImage post={post} sizes="(min-width: 1024px) 58vw, 100vw" priority />
+      // The frame takes the picture's own proportions, capped in height; any spare room is
+      // filled by the background rather than cropping the picture.
+      <div
+        className="relative max-h-[26rem] w-full overflow-hidden bg-surface-raised lg:col-span-4 lg:max-h-[30rem] lg:self-start"
+        style={{ aspectRatio: `${post.image.width} / ${post.image.height}` }}
+      >
+        <PostImage post={post} sizes="(min-width: 1024px) 32vw, 100vw" priority />
         <MediaBadge post={post} />
       </div>
     )}
-    <div className={`flex flex-col gap-6 p-7 md:p-9 ${post.image ? 'lg:col-span-5' : 'max-w-3xl'}`}>
+    <div className={`flex flex-col gap-5 p-6 md:p-8 ${post.image ? 'lg:col-span-8 lg:max-w-3xl' : 'max-w-3xl'}`}>
       <div className="flex items-center gap-3">
         <span className="chip-signal">Latest</span>
         <PostDate post={post} />
@@ -99,9 +134,7 @@ const FeaturedPost = ({ post }: { post: NewsPost }) => (
       <h3 id={`post-${post.id}`} className="sr-only">
         Facebook post from {formatPostDate(post.createdTime)}
       </h3>
-      <p className="whitespace-pre-line text-[15px] font-light leading-[1.8] text-ink-body md:text-base">
-        <RichText text={post.message} />
-      </p>
+      <ExpandableText text={post.message} />
       <a href={post.permalink} {...external} className="link-arrow mt-auto self-start">
         View on Facebook <ArrowUpRight />
       </a>
@@ -114,7 +147,7 @@ const PostCard = ({ post, index }: { post: NewsPost; index: number }) => (
   <li className="h-full" data-rv style={delay(120 + (index % 3) * 90)}>
     <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-white/10 bg-surface transition-colors duration-500 hover:border-white/25">
       {post.image && (
-        <div className="relative aspect-[4/3] overflow-hidden bg-surface-raised">
+        <div className="relative aspect-square overflow-hidden bg-surface-raised">
           <PostImage post={post} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" />
           <MediaBadge post={post} />
         </div>
@@ -122,7 +155,7 @@ const PostCard = ({ post, index }: { post: NewsPost; index: number }) => (
       <div className="flex flex-1 flex-col justify-between gap-5 p-6">
         <div>
           <PostDate post={post} />
-          <p className={`mt-3 whitespace-pre-line text-sm font-light leading-[1.75] text-ink-body ${post.image ? 'line-clamp-5' : 'line-clamp-[12]'}`}>
+          <p className={`mt-3 whitespace-pre-line text-sm font-light leading-[1.75] text-ink-body ${post.image ? 'line-clamp-4' : 'line-clamp-[10]'}`}>
             {post.message || 'Photo post'}
           </p>
         </div>
