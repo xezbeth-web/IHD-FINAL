@@ -23,7 +23,7 @@ export const sectorPages: SectorPage[] = [
     seoTitle: 'Hotel AV, Acoustics & Technology Consultant Philippines | IHD',
     metaDescription: `Technology consultancy for hotels and resorts in the Philippines: ballroom AV, acoustics, hotel networks, security and GRMS across ${count('hospitality')} hospitality projects.`,
     intro: [
-      'Hotels and resorts are the largest part of IHD’s portfolio — city hotels, beach resorts, serviced residences, an integrated resort and casino, and hotel health clubs, from Metro Manila to Cebu, Boracay, Palawan, Davao and Clark.',
+      'Hotels and resorts are the largest part of IHD’s portfolio — city hotels, beach resorts, serviced residences, integrated resorts and casinos, and hotel health clubs, from Metro Manila to Cebu, Boracay, Palawan, Davao, Clark and Tarlac.',
       'In hospitality, technology is part of the guest experience. Ballrooms must handle a wedding one night and a conference the next, restaurants and rooftop venues must sound right, guest rooms must be quiet, connected and efficient, and back-of-house networks and security must run around the clock.'
     ],
     focus: [

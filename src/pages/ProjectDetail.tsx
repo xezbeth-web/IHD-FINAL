@@ -91,7 +91,7 @@ const ProjectDetail = () => {
       />
 
       <PageHero
-        eyebrow={`Project No. ${p.projectNumber} · ${p.types[0]}`}
+        eyebrow={p.projectNumber ? `Project No. ${p.projectNumber} · ${p.types[0]}` : p.types[0]}
         trail={trail}
         title={p.name}
         lead={p.summary}

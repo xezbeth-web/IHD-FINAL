@@ -4,12 +4,12 @@ import type { DisciplineSlug } from './disciplines';
 // project register. Do not add scope, outcomes or clients that are not recorded here.
 
 export type SectorSlug = 'hospitality' | 'worship' | 'culture-education' | 'commercial-residential';
-export type Region = 'Metro Manila' | 'Cebu' | 'Boracay' | 'Palawan' | 'Davao' | 'Clark, Pampanga';
+export type Region = 'Metro Manila' | 'Cebu' | 'Boracay' | 'Palawan' | 'Davao' | 'Clark, Pampanga' | 'Tarlac';
 
 export interface Project {
   slug: string;
-  /** IHD project number, also the legacy URL id (/projects/PA123001) */
-  projectNumber: string;
+  /** IHD project number, also the legacy URL id (/projects/PA123001). Omit until IHD confirms it. */
+  projectNumber?: string;
   name: string;
   summary: string;
   location: string;
@@ -550,6 +550,35 @@ export const projects: Project[] = [
     disciplines: ['audiovisual', 'acoustics', 'information-technology', 'security'],
     image: 'projects/fourpoints',
     imageAlt: 'Courtyard pool between guest wings at sunset, Four Points Palawan'
+  },
+  // Hann Philippines projects (added Nov 2026). Disciplines are ESTIMATES pending IHD confirmation,
+  // and project numbers are not yet known. Photos come from third-party sites (Mace Group, IMG);
+  // usage permission has not been confirmed.
+  {
+    slug: 'hann-resort-clark',
+    name: 'Hann Resort',
+    summary:
+      'Hann Resort in Clark Freeport Zone, Pampanga — an integrated resort with a casino, hotels, restaurants and event venues.',
+    location: 'Clark Freeport Zone, Pampanga',
+    region: 'Clark, Pampanga',
+    types: ['Resort & Casino'],
+    sector: 'hospitality',
+    disciplines: ['audiovisual', 'acoustics', 'information-technology', 'security'],
+    image: 'projects/hannresort',
+    imageAlt: 'Hann Casino Resort façade lit in purple at dusk, with the Swissôtel Clark tower behind'
+  },
+  {
+    slug: 'hann-reserve-tarlac',
+    name: 'Hann Reserve',
+    summary:
+      'Hann Reserve in New Clark City, Tarlac — a 450-hectare resort estate built around golf, with hotels and residences planned.',
+    location: 'New Clark City, Tarlac',
+    region: 'Tarlac',
+    types: ['Resort'],
+    sector: 'hospitality',
+    disciplines: ['audiovisual', 'acoustics', 'information-technology', 'security'],
+    image: 'projects/hannreserve',
+    imageAlt: 'Aerial view of the Hann Reserve golf course and lakes at sunrise, with mountains on the horizon'
   }
 ];
 
@@ -557,6 +586,6 @@ export const getProject = (slug: string | undefined) => projects.find((p) => p.s
 
 export const projectsByDiscipline = (slug: DisciplineSlug) => projects.filter((p) => p.disciplines.includes(slug));
 
-export const regions: Region[] = ['Metro Manila', 'Cebu', 'Boracay', 'Palawan', 'Davao', 'Clark, Pampanga'];
+export const regions: Region[] = ['Metro Manila', 'Cebu', 'Boracay', 'Palawan', 'Davao', 'Clark, Pampanga', 'Tarlac'];
 
 export const sectorName = (slug: SectorSlug) => sectors.find((s) => s.slug === slug)?.name ?? slug;

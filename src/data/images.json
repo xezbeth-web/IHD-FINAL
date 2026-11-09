@@ -185,6 +185,32 @@
     "avif": true,
     "og": true
   },
+  "projects/hannreserve": {
+    "width": 2560,
+    "height": 1920,
+    "widths": [
+      320,
+      480,
+      720,
+      960,
+      1600
+    ],
+    "avif": true,
+    "og": true
+  },
+  "projects/hannresort": {
+    "width": 1600,
+    "height": 900,
+    "widths": [
+      320,
+      480,
+      720,
+      960,
+      1600
+    ],
+    "avif": true,
+    "og": true
+  },
   "projects/hilton": {
     "width": 1920,
     "height": 720,
@@ -534,6 +560,15 @@
     "avif": true,
     "og": true
   },
+  "team/anne": {
+    "width": 1600,
+    "height": 1600,
+    "widths": [
+      240,
+      480
+    ],
+    "avif": true
+  },
   "team/emman": {
     "width": 3153,
     "height": 3153,
@@ -663,6 +698,15 @@
   "partners/filinvest": {
     "width": 2257,
     "height": 388,
+    "widths": [
+      320,
+      640
+    ],
+    "avif": true
+  },
+  "partners/hann": {
+    "width": 2000,
+    "height": 930,
     "widths": [
       320,
       640

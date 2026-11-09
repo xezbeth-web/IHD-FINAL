@@ -56,7 +56,7 @@ const Disciplines = () => (
         { name: 'Home', path: '/' },
         { name: 'Disciplines', path: PATH }
       ]}
-      title="Acoustics, audiovisual and building technology engineering"
+      title="Acoustics and building technology engineering"
       lead="IHD covers six technical disciplines that increasingly depend on one another. Designing them within one practice means one coordinated set of requirements, one network strategy and one point of accountability for the client team."
       image={{ src: heroProject.image, alt: heroProject.imageAlt }}
     >

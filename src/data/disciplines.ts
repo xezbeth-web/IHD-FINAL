@@ -28,6 +28,11 @@ export interface Discipline {
   summary: string;
   overview: string[];
   capabilities: Item[];
+  /**
+   * Capability titles shown as chips in the home page's Practice Scope story, in capability
+   * order. Defaults to the first four capabilities when omitted.
+   */
+  highlights?: string[];
   applications: Item[];
   methodology: Item[];
   image: string;
@@ -104,14 +109,22 @@ export const disciplines: Discipline[] = [
     ],
     capabilities: [
       { title: 'Audio systems', detail: 'Professional sound reinforcement, conference audio and immersive audio experiences.' },
-      { title: 'Display technologies', detail: 'LED walls, projection systems, video walls and interactive displays.' },
-      { title: 'Signal distribution', detail: 'High-performance AV over IP, matrix switching and signal processing.' },
-      { title: 'Networked AV', detail: 'Enterprise-wide AV distribution and control platforms.' },
+      { title: 'Display technologies', detail: 'LED walls, video walls and interactive displays.' },
+      {
+        title: 'AV over IP',
+        detail: 'Networked audio and video distribution, matrix switching, signal processing and enterprise-wide control platforms.'
+      },
+      { title: 'Projection systems', detail: 'Projectors and projection screens for auditoriums, ballrooms and presentation spaces.' },
       { title: 'Lighting design & control', detail: 'Dynamic lighting systems for performances, events and architectural enhancement.' },
       { title: 'Entertainment systems', detail: 'Broadcast, streaming and media server solutions.' },
+      {
+        title: 'Function room solutions',
+        detail: 'Flexible sound, video and control for hotel ballrooms and function rooms that change from one event to the next.'
+      },
       { title: 'Interactive experiences', detail: 'Touch interfaces, gesture control and immersive environments.' },
       { title: '3D modeling & simulation', detail: 'Pre-visualisation and system modeling for complex installations.' }
     ],
+    highlights: ['Audio systems', 'Display technologies', 'AV over IP', 'Projection systems', 'Function room solutions'],
     applications: [
       { title: 'Ballrooms and function rooms', detail: 'Flexible sound, video and lighting for banquets, conferences and events.' },
       { title: 'Churches and chapels', detail: 'Clear speech and music reinforcement, displays and streaming for worship.' },
@@ -156,7 +169,19 @@ export const disciplines: Discipline[] = [
       { title: 'Visitor management', detail: 'Registration, tracking and badging systems.' },
       { title: 'Security command centers', detail: 'Centralised monitoring, control rooms and SOC design.' },
       { title: 'Integrated security platforms', detail: 'PSIM and unified security management systems.' },
-      { title: 'Cybersecurity for physical systems', detail: 'Network segmentation and endpoint protection for security devices.' }
+      { title: 'Cybersecurity for physical systems', detail: 'Network segmentation and endpoint protection for security devices.' },
+      { title: 'Hotel electronic locks', detail: 'Electronic guest room door locks and key credential management for hotels and resorts.' },
+      { title: 'Carpark management', detail: 'Vehicle entry and exit control and access management for building carparks.' },
+      { title: 'Hostile vehicle mitigation', detail: 'Vehicle barriers, bollards and perimeter protection against vehicle-borne threats.' }
+    ],
+    highlights: [
+      'CCTV & video surveillance',
+      'Access control',
+      'Intrusion detection',
+      'Visitor management',
+      'Hotel electronic locks',
+      'Carpark management',
+      'Hostile vehicle mitigation'
     ],
     applications: [
       { title: 'Hotels and resorts', detail: 'Guest safety and back-of-house security across large, open properties.' },
@@ -187,7 +212,7 @@ export const disciplines: Discipline[] = [
     positioning:
       'The network is now the backbone every other building system depends on. We design resilient, scalable IT and extra-low-voltage infrastructure for hotels, offices, residences and resorts.',
     summary:
-      'Structured cabling and ELV pathways, enterprise network architecture, data center and server room design, wireless, unified communications and network security.',
+      'Structured cabling and ELV pathways, enterprise network architecture, data center and server room design, wireless solutions, unified communications and network security.',
     overview: [
       'IHD designs enterprise IT infrastructure that powers modern building operations: resilient, scalable networks and data center facilities that support mission-critical applications.',
       'Audiovisual, security, IoT and guest room systems increasingly run over the same IP network and the same structured cabling plant. Designing IT and ELV infrastructure as one coordinated layer — from telecom rooms and cable pathways to switching and wireless — is what allows those systems to perform and to be managed reliably.',

@@ -61,7 +61,7 @@ const About = () => (
         { name: 'Practice Profile', path: PATH }
       ]}
       title="An engineering consultancy for the technology inside buildings"
-      lead="Headquartered in the Philippines with a presence across Asia, IHD Philippines Ltd. Inc. specialises in acoustics, audiovisual systems, security, IT and ELV infrastructure, IoT and guest room management. Our mission is simple: turn our clients’ ambitions into reality."
+      lead="Headquartered in the Philippines, IHD Philippines Ltd. Inc. specialises in acoustics, audiovisual systems, security, IT and ELV infrastructure, IoT and guest room management. Our mission is simple: turn our clients’ ambitions into reality."
       image={{ src: banner.image, alt: banner.imageAlt }}
     />
 
@@ -89,7 +89,7 @@ const About = () => (
           </p>
           <p className="prose-body" data-rv style={delay(500)}>
             Our portfolio of {projects.length} projects spans {regions.length} regions of the Philippines, from Metro
-            Manila to Cebu, Boracay, Palawan, Davao and Clark. You can{' '}
+            Manila to Cebu, Boracay, Palawan, Davao, Clark and Tarlac. You can{' '}
             <Link to="/projects" className="text-ink underline decoration-signal/50 underline-offset-4 hover:text-signal">
               browse the full project portfolio
             </Link>{' '}
@@ -205,7 +205,7 @@ const About = () => (
           id="team-heading"
           eyebrow="Team"
           title="The engineers and consultants behind the work"
-          lead="Acoustic, audiovisual, IT and BIM/CAD specialists and technology engineers who carry each design from drawings to commissioning."
+          lead="Acoustic, audiovisual, IT, technology engineers, and BIM/CAD specialists who carry each design from drawings to commissioning."
         />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {team.map((p, i) => (

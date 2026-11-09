@@ -48,5 +48,5 @@ export const legacyRedirects: Record<string, string> = {
   '/services/iot': '/disciplines/iot-smart-buildings',
   '/services/bmsepms': '/disciplines/iot-smart-buildings',
   '/services/grms': '/disciplines/guest-room-management',
-  ...Object.fromEntries(projects.map((p) => [`/projects/${p.projectNumber}`, `/projects/${p.slug}`]))
+  ...Object.fromEntries(projects.filter((p) => p.projectNumber).map((p) => [`/projects/${p.projectNumber}`, `/projects/${p.slug}`]))
 };

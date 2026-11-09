@@ -230,7 +230,7 @@ const Home = () => (
               Technology & Engineering Consultancy · Philippines
             </p>
             <h1 id="hero-heading" className="font-display font-light text-ink [font-size:clamp(2.4rem,min(4.7vw,8.2vh),4.6rem)] [letter-spacing:-0.035em] [line-height:1.04]">
-              <RevealText text="Architectural acoustics, audiovisual and intelligent building systems — engineered as one." step={20} />
+              <RevealText text="Architectural acoustics and intelligent building systems — engineered as one." step={20} />
             </h1>
             <p className="mt-8 max-w-xl text-base font-light leading-[1.75] text-ink-secondary md:text-lg md:leading-[1.7]" data-rv style={d(250)}>
               IHD Philippines is a technology consultancy for hotels, performance venues, worship spaces and commercial

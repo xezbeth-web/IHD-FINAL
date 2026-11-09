@@ -19,8 +19,9 @@ export const organization = () => ({
   sameAs: SITE.social.map((s) => s.url),
   address: {
     '@type': 'PostalAddress',
-    streetAddress: `${SITE.address.street}, ${SITE.address.district}`,
+    streetAddress: SITE.address.street,
     addressLocality: SITE.address.city,
+    postalCode: SITE.address.postalCode,
     addressRegion: SITE.address.region,
     addressCountry: 'PH'
   },

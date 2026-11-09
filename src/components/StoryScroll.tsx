@@ -124,7 +124,7 @@ const StoryScroll = ({ headingId }: { headingId: string }) => {
                     {d.summary}
                   </p>
                   <ul className="story-k mt-7 hidden flex-wrap justify-center gap-2 sm:flex" style={{ '--k': 3 } as CSSProperties}>
-                    {d.capabilities.slice(0, 4).map((c) => (
+                    {(d.highlights ? d.capabilities.filter((c) => d.highlights!.includes(c.title)) : d.capabilities.slice(0, 4)).map((c) => (
                       <li key={c.title} className="chip border-white/15 bg-black/30 backdrop-blur-sm">
                         {c.title}
                       </li>

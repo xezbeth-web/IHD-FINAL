@@ -12,7 +12,7 @@ import { Seo } from '../lib/seo';
 
 const TITLE = 'Developer Partners & Clients | IHD Philippines';
 const DESCRIPTION =
-  'IHD Philippines works with Ayala Land, DMCI Homes, Filinvest and Megaworld, and with architects, engineers and hotel operators on venues across the Philippines.';
+  'IHD Philippines works with Ayala Land, DMCI Homes, Filinvest, Megaworld and Hann Philippines, and with architects, engineers and hotel operators.';
 const PATH = '/partners';
 
 const hospitality = projects.filter((p) => p.sector === 'hospitality');
@@ -86,11 +86,14 @@ const Partners = () => (
           title="Property developers we have worked with"
           lead="We have collaborated with some of the Philippines’ leading real estate developers."
         />
-        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-5">
           {developers.map((d, i) => (
             <li
               key={d.name}
-              className="group flex flex-col items-center justify-center gap-6 bg-canvas-alt px-8 py-[clamp(2.5rem,7vh,4.5rem)] transition-colors duration-500 hover:bg-surface"
+              className={`group flex flex-col items-center justify-start gap-6 bg-canvas-alt px-6 py-[clamp(2.5rem,7vh,4.5rem)] text-center transition-colors duration-500 hover:bg-surface ${
+                // With an odd count, the last tile fills the final row of the two-column layout.
+                developers.length % 2 === 1 && i === developers.length - 1 ? 'sm:col-span-2 lg:col-span-1' : ''
+              }`}
               data-rv
               style={delay(200 + i * 90)}
             >
@@ -98,9 +101,23 @@ const Partners = () => (
                 src={d.image}
                 alt={`${d.name} logo`}
                 sizes="240px"
-                className="h-12 w-auto max-w-[200px] object-contain opacity-70 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+                className="h-12 w-auto max-w-[180px] object-contain opacity-70 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
               />
-              <span className="label">{d.name}</span>
+              <span>
+                <span className="label block">{d.name}</span>
+                {d.projects?.map((slug, j) => {
+                  const p = getProject(slug)!;
+                  return (
+                    <Link
+                      key={slug}
+                      to={`/projects/${slug}`}
+                      className={`block text-[12.5px] leading-snug text-ink-muted underline-offset-4 transition-colors hover:text-signal hover:underline ${j === 0 ? 'mt-3' : 'mt-1'}`}
+                    >
+                      {p.name} · {p.region}
+                    </Link>
+                  );
+                })}
+              </span>
             </li>
           ))}
         </ul>
