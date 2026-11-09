@@ -23,7 +23,9 @@ const DESCRIPTION =
   'Philippine technology consultancy for architectural acoustics, AV design, security, IT and ELV, IoT and GRMS — for hotels, venues and commercial buildings.';
 
 const heroStack = {
-  main: getProject('rockwell-performing-arts-theater')!,
+  // An integrated resort (hotels, casino, venues) represents the whole practice better than a
+  // single-discipline venue (reviewer feedback A02, Nov 2026).
+  main: getProject('hann-resort-clark')!,
   low: getProject('the-fifth-at-rockwell')!,
   high: getProject('grand-hyatt-manila-rooftop')!
 };

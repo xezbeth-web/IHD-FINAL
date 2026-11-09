@@ -391,7 +391,7 @@ export const projects: Project[] = [
     projectNumber: 'PA153009',
     name: 'Widus Tower 3',
     summary:
-      'Widus Tower 3 in Clark, Pampanga — a hotel tower within a growing mixed-use and leisure destination in Central Luzon.',
+      'Widus Tower 3 in Clark, Pampanga — a hotel tower at the Widus complex, now part of Hann Resort, a mixed-use and leisure destination in Central Luzon.',
     location: 'Clark, Pampanga',
     region: 'Clark, Pampanga',
     types: ['Hotel'],
@@ -551,9 +551,8 @@ export const projects: Project[] = [
     image: 'projects/fourpoints',
     imageAlt: 'Courtyard pool between guest wings at sunset, Four Points Palawan'
   },
-  // Hann Philippines projects (added Nov 2026). Disciplines are ESTIMATES pending IHD confirmation,
-  // and project numbers are not yet known. Photos come from third-party sites (Mace Group, IMG);
-  // usage permission has not been confirmed.
+  // Hann Philippines projects (added Nov 2026). Disciplines and photos approved by the site owner;
+  // photos are Hann's own (hannresorts.com), used with consent. No IHD project numbers on record.
   {
     slug: 'hann-resort-clark',
     name: 'Hann Resort',
@@ -565,7 +564,7 @@ export const projects: Project[] = [
     sector: 'hospitality',
     disciplines: ['audiovisual', 'acoustics', 'information-technology', 'security'],
     image: 'projects/hannresort',
-    imageAlt: 'Hann Casino Resort façade lit in purple at dusk, with the Swissôtel Clark tower behind'
+    imageAlt: 'Hann Casino Resort lit at dusk, with the Swissôtel Clark and Clark Marriott towers behind'
   },
   {
     slug: 'hann-reserve-tarlac',
