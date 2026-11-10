@@ -97,7 +97,7 @@ export const disciplines: Discipline[] = [
     h1: 'Audiovisual and multimedia system design',
     seoTitle: 'Audiovisual Consultant Philippines | AV System Design | IHD',
     metaDescription:
-      'Audiovisual consultant for AV system design in the Philippines: sound reinforcement, displays, AV over IP, lighting control and media systems for venues and hotels.',
+      'AV consultant in the Philippines: sound reinforcement, displays, AV over IP, projection, lighting control and media systems for venues and hotels.',
     positioning:
       'We design audiovisual systems that make presentations, collaboration, worship and entertainment work — and stay simple to operate — in boardrooms, auditoriums, ballrooms and public venues.',
     summary:
@@ -152,7 +152,7 @@ export const disciplines: Discipline[] = [
     h1: 'Integrated security systems design',
     seoTitle: 'Security Systems Consultant Philippines | IHD Philippines',
     metaDescription:
-      'Integrated security system design in the Philippines: CCTV and video analytics, access control, intrusion detection, visitor management and security command centers.',
+      'Security system design in the Philippines: CCTV and video analytics, access control, intrusion detection, visitor management and security command centers.',
     positioning:
       'Layered security that protects people, assets and operations — surveillance, access control and intrusion detection designed as one coordinated system with centralised monitoring.',
     summary:
@@ -208,7 +208,7 @@ export const disciplines: Discipline[] = [
     h1: 'IT network, ELV and structured cabling design',
     seoTitle: 'IT, ELV & Structured Cabling Consultant Philippines | IHD',
     metaDescription:
-      'ELV and IT consultancy in the Philippines: structured cabling, enterprise network architecture, data center design, Wi-Fi, unified communications and network security.',
+      'ELV and IT consultancy in the Philippines: structured cabling, network architecture, data centers, wireless solutions, unified communications and security.',
     positioning:
       'The network is now the backbone every other building system depends on. We design resilient, scalable IT and extra-low-voltage infrastructure for hotels, offices, residences and resorts.',
     summary:
@@ -309,7 +309,7 @@ export const disciplines: Discipline[] = [
     h1: 'Guest room management systems for hotels and resorts',
     seoTitle: 'Guest Room Management System (GRMS) Consultant | IHD Philippines',
     metaDescription:
-      'GRMS design for hotels and resorts in the Philippines: in-room automation of lighting, climate and entertainment, energy management, door lock and PMS integration.',
+      'GRMS design for Philippine hotels and resorts: in-room control of lighting, climate and entertainment, energy management, door lock and PMS integration.',
     positioning:
       'Rooms that respond to guests and save energy when they leave. We design guest room management systems that bring lighting, climate, entertainment and services under one intuitive control layer.',
     summary:

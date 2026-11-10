@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from '../components/Icons';
-import { Img } from '../components/Img';
+import { Img, largestImage } from '../components/Img';
 import { RevealText } from '../components/Motion';
 import Scene from '../components/Scene';
 import { CtaBand, PageHero, SectionHeader, delay } from '../components/ui';
@@ -8,7 +8,7 @@ import { disciplines } from '../data/disciplines';
 import { lifecycle, principles } from '../data/practice';
 import { getProject, projects, regions } from '../data/projects';
 import { leadership, team, type Person } from '../data/team';
-import { breadcrumbs, graph, webPage } from '../lib/schema';
+import { breadcrumbs, employees, graph, webPage } from '../lib/schema';
 import { Seo } from '../lib/seo';
 
 const TITLE = 'About IHD Philippines | Engineering & Technology Consultancy';
@@ -50,7 +50,8 @@ const About = () => (
         breadcrumbs([
           { name: 'Home', path: '/' },
           { name: 'Practice Profile', path: PATH }
-        ])
+        ]),
+        employees([...leadership, ...team], largestImage)
       )}
     />
 

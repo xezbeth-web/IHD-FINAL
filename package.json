@@ -13,7 +13,8 @@
     "images": "node scripts/optimize-images.mjs",
     "icons": "node scripts/make-icons.mjs",
     "check": "node scripts/check-site.mjs",
-    "news": "node scripts/fetch-news.mjs"
+    "news": "node scripts/fetch-news.mjs",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

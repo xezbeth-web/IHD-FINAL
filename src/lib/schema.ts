@@ -1,5 +1,5 @@
 import { disciplines } from '../data/disciplines';
-import { SITE, absoluteUrl } from './site';
+import { SITE, absoluteUrl, mapUrl } from './site';
 
 // schema.org helpers. Only facts present in SITE and the content files are emitted.
 
@@ -24,6 +24,21 @@ export const organization = () => ({
     postalCode: SITE.address.postalCode,
     addressRegion: SITE.address.region,
     addressCountry: 'PH'
+  },
+  hasMap: mapUrl,
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    telephone: SITE.phoneE164,
+    email: SITE.email,
+    areaServed: 'PH',
+    availableLanguage: 'English',
+    hoursAvailable: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '08:30',
+      closes: '17:30'
+    }
   },
   areaServed: { '@type': 'Country', name: 'Philippines' },
   openingHoursSpecification: {
@@ -83,6 +98,18 @@ export const service = (slug: string) => {
     areaServed: { '@type': 'Country', name: 'Philippines' }
   };
 };
+
+/** Adds the practice's people to the organization node (merged by @id). */
+export const employees = (people: { name: string; role: string; image: string }[], imageUrl: (key: string) => string | undefined) => ({
+  '@id': ORG_ID,
+  employee: people.map((p) => ({
+    '@type': 'Person',
+    name: p.name,
+    jobTitle: p.role,
+    ...(imageUrl(p.image) ? { image: absoluteUrl(imageUrl(p.image)!) } : {}),
+    worksFor: { '@id': ORG_ID }
+  }))
+});
 
 export const faqPage = (path: string, faqs: { q: string; a: string }[]) => ({
   '@type': 'FAQPage',

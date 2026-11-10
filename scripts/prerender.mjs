@@ -11,7 +11,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const ssrDir = path.join(root, '.ssr');
 
-const { render, prerenderRoutes, legacyRedirects, routeImages, SITE } = await import(
+const { render, prerenderRoutes, legacyRedirects, routeImages, SITE, llmsTxt } = await import(
   pathToFileURL(path.join(ssrDir, 'entry-server.js')).href
 );
 
@@ -126,6 +126,9 @@ ${prerenderRoutes
 </urlset>
 `;
 write(path.join(dist, 'sitemap.xml'), sitemap);
+
+// Plain-text summary for AI assistants and answer engines (see src/lib/llms.ts).
+write(path.join(dist, 'llms.txt'), llmsTxt());
 
 fs.rmSync(ssrDir, { recursive: true, force: true });
 fs.rmSync(path.join(dist, '.vite'), { recursive: true, force: true });

@@ -27,7 +27,9 @@ const ProjectDetail = () => {
   const scope = p.disciplines.map((s) => getDiscipline(s)!);
   const scopeLabel =
     scope.length > 2 ? 'Multi-Discipline Engineering' : scope.map((d) => (d.slug === 'information-technology' ? 'IT' : d.label)).join(' & ');
-  const title = `${p.name} | ${scopeLabel} | IHD Philippines`;
+  // Search results truncate long titles, so step down to a shorter form past ~65 characters.
+  const titleOptions = [`${p.name} | ${scopeLabel} | IHD Philippines`, `${p.name} | ${scopeLabel} | IHD`, `${p.name} | IHD Philippines`];
+  const title = titleOptions.find((t) => t.length <= 65) ?? titleOptions[titleOptions.length - 1];
   const scopeSentence = `${listFormat(scope.map((d) => d.label.toLowerCase()))} consultancy by IHD Philippines for ${p.name}, ${p.location}.`;
   const lead = scopeSentence.charAt(0).toUpperCase() + scopeSentence.slice(1);
   const description = lead.length + p.summary.length < 160 ? `${lead} ${p.summary}` : lead;

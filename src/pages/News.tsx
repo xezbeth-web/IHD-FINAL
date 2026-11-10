@@ -10,7 +10,7 @@ import { SITE, socialUrl } from '../lib/site';
 
 const TITLE = 'News & Updates | IHD Philippines';
 const DESCRIPTION =
-  'The latest news and project updates from IHD Philippines on architectural acoustics, audiovisual solutions and intelligent building systems, posted on our Facebook page.';
+  'News and project updates from IHD Philippines on architectural acoustics, audiovisual and intelligent building systems, from our Facebook page.';
 const PATH = '/news';
 
 const facebook = socialUrl('Facebook');

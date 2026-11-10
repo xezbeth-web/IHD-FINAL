@@ -17,6 +17,7 @@ import { HeadContext, renderHeadTags, type SeoProps } from './lib/seo';
 
 export { legacyRedirects, prerenderRoutes, routeImages } from './routes';
 export { SITE } from './lib/site';
+export { llmsTxt } from './lib/llms';
 
 /** Renders one URL to static HTML plus the <head> tags its <Seo> component declared. */
 // The prerender renders every page eagerly so each HTML file is complete.

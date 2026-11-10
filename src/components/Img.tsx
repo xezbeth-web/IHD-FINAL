@@ -64,5 +64,9 @@ export const Img = ({ src, alt, sizes = '100vw', priority = false, ...rest }: Im
 /** Absolute-path Open Graph JPEG (1200×630) for a manifest key, if one was generated. */
 export const ogImageFor = (src: string) => (images[src]?.og ? `/images/og/${src.split('/').pop()}.jpg` : undefined);
 
+/** Absolute-path largest WebP variant for a manifest key (e.g. for structured data), if any. */
+export const largestImage = (src: string) =>
+  images[src]?.widths.length ? variant(src, Math.max(...images[src].widths)) : undefined;
+
 /** Intrinsic dimensions of a manifest image, e.g. to avoid upscaling low-resolution sources. */
 export const imageSize = (src: string) => images[src] && { width: images[src].width, height: images[src].height };

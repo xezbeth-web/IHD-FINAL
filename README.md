@@ -11,6 +11,7 @@ Marketing site for IHD Philippines Ltd. Inc. Built with React, Vite and Tailwind
 | `npm run images` | Regenerate optimised images from `assets-src/` (run after adding or changing one)  |
 | `npm run icons`  | Regenerate the favicon and app icons from `assets-src/brand/ihd-glyph.svg`         |
 | `npm run check`  | Re-run the site check against an existing `dist/`                                  |
+| `npm run indexnow` | After a deploy: ask Bing and other IndexNow engines to recrawl (all pages, or pass paths) |
 
 ## How the site is put together
 
@@ -21,7 +22,7 @@ Marketing site for IHD Philippines Ltd. Inc. Built with React, Vite and Tailwind
   - `team.ts` — leadership, team and developer logos
   - `practice.ts` — delivery lifecycle and principles
   - `../lib/site.ts` — company facts (email, phone, hours, domain)
-- **Prerendering** (`scripts/prerender.mjs`) renders every route to its own HTML file with its title, description, canonical URL, Open Graph tags and schema.org data, so search engines and link previews see full pages without running JavaScript. It also writes `sitemap.xml`, `404.html` and redirect pages for the old site's URLs.
+- **Prerendering** (`scripts/prerender.mjs`) renders every route to its own HTML file with its title, description, canonical URL, Open Graph tags and schema.org data, so search engines and link previews see full pages without running JavaScript. It also writes `sitemap.xml`, `llms.txt` (a plain-text summary for AI assistants, built from `src/lib/llms.ts`), `404.html` and redirect pages for the old site's URLs.
 - **Scenes and motion** — pages are built from `<Scene>` sections (`src/components/Scene.tsx`): each fills the viewport and sticks as the next one slides over it. One shared scroll loop (`src/lib/scroll.ts`) drives every scroll-linked effect; the motion language (reveals, word masks, the disciplines scroll story, marquee, route wipe) lives in `src/motion.css`. Everything is progressive: without JavaScript or with reduced motion, content renders as ordinary, fully visible sections.
 - **Boot screen** — the short glitch loading screen lives entirely in `index.html` (inline CSS and script) so it paints before the app loads. It shows once per browser session and is skipped for search-engine crawlers and visitors who prefer reduced motion; the page underneath renders normally the whole time.
 - **Site check** (`scripts/check-site.mjs`) fails the build if a page is missing its H1, title, description or canonical, has an image without alt text, duplicates another page's title, or links to a page that doesn't exist.
